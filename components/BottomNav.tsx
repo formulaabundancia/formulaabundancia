@@ -28,7 +28,7 @@ export function BottomNav() {
 
   return (
     <div className="sticky bottom-0 z-30 px-4 pb-4 pt-2">
-      <nav className="flex rounded-full bg-white/95 p-1.5 shadow-lg ring-1 ring-black/5 backdrop-blur-sm dark:bg-zinc-900/95 dark:ring-white/10">
+      <nav className="mx-auto flex max-w-2xl rounded-full bg-white/95 p-1.5 shadow-lg ring-1 ring-black/5 backdrop-blur-sm dark:bg-zinc-900/95 dark:ring-white/10">
         {items.map((item) => {
           const active = item.href === "/app" ? pathname === "/app" : pathname.startsWith(item.href);
           return (

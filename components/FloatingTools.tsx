@@ -130,13 +130,15 @@ export function FloatingTools() {
 
   return (
     <>
-      <button
-        onClick={() => setOpen(true)}
-        className="fixed bottom-20 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-zinc-900 text-white shadow-lg transition hover:scale-105 dark:bg-zinc-100 dark:text-zinc-900"
-        aria-label="Herramientas"
-      >
-        <ClockIcon className="h-6 w-6" />
-      </button>
+      <div className="pointer-events-none fixed inset-x-0 bottom-24 z-40 mx-auto max-w-2xl px-5">
+        <button
+          onClick={() => setOpen(true)}
+          className="pointer-events-auto ml-auto flex h-14 w-14 items-center justify-center rounded-full bg-zinc-900 text-white shadow-lg transition hover:scale-105 dark:bg-zinc-100 dark:text-zinc-900"
+          aria-label="Herramientas"
+        >
+          <ClockIcon className="h-6 w-6" />
+        </button>
+      </div>
 
       {open && (
         <div
