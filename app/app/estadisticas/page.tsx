@@ -45,7 +45,7 @@ function ProfileStatsCard({ profile, bestStreak }: { profile: Profile; bestStrea
         <ProgressRing value={today.done} total={today.total} size={72} strokeWidth={7} sublabel="hoy" />
         <div>
           <p className="font-medium text-zinc-800 dark:text-zinc-100">{PROFILE_DISPLAY_NAMES[profile.name]}</p>
-          <p className="mt-1 text-2xl font-bold text-zinc-900 dark:text-zinc-50">{xp} XP</p>
+          <p className="mt-1 text-2xl font-bold text-zinc-900 dark:text-zinc-50">{xp} FA</p>
           {bestStreak > 0 && (
             <p className="mt-0.5 flex items-center gap-1 text-xs font-medium text-orange-500">
               <FlameIcon className="h-3.5 w-3.5" />

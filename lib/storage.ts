@@ -273,6 +273,40 @@ export async function getRitualProgress(
   return { done: stepKeys.filter((k) => done.has(k)).length, total: stepKeys.length };
 }
 
+export async function getRitualStreak(stepKeys: string[], profileId: ProfileId): Promise<number> {
+  if (stepKeys.length === 0) return 0;
+  const since = new Date();
+  since.setDate(since.getDate() - 120);
+  const { data } = await supabase
+    .from("habit_logs")
+    .select("date, habit_key")
+    .eq("profile_id", profileId)
+    .eq("completed", true)
+    .in("habit_key", stepKeys)
+    .gte("date", since.toISOString().slice(0, 10));
+
+  const byDate = new Map<string, Set<string>>();
+  for (const row of data ?? []) {
+    const d = row.date as string;
+    if (!byDate.has(d)) byDate.set(d, new Set());
+    byDate.get(d)!.add(row.habit_key as string);
+  }
+
+  let streak = 0;
+  const cursor = new Date();
+  while (true) {
+    const dateStr = cursor.toISOString().slice(0, 10);
+    const doneSet = byDate.get(dateStr);
+    if (doneSet && doneSet.size >= stepKeys.length) {
+      streak += 1;
+      cursor.setDate(cursor.getDate() - 1);
+    } else {
+      break;
+    }
+  }
+  return streak;
+}
+
 // ---- Meals ----
 
 function mapMeal(r: Record<string, unknown>): Meal {
