@@ -27,17 +27,17 @@ export interface SectionConfig {
   blocks: BlockConfig[];
 }
 
-export const AREAS: { id: Area; label: string; accent: string }[] = [
-  { id: "salud", label: "Salud", accent: "emerald" },
-  { id: "dinero", label: "Dinero", accent: "amber" },
-  { id: "amor", label: "Amor", accent: "rose" },
+export const AREAS: { id: Area; label: string; accent: string; icon: string }[] = [
+  { id: "salud", label: "Salud", accent: "emerald", icon: "🌿" },
+  { id: "dinero", label: "Dinero", accent: "amber", icon: "💰" },
+  { id: "amor", label: "Amor", accent: "rose", icon: "❤️" },
 ];
 
-export const DIMENSIONS: { id: Dimension; label: string }[] = [
-  { id: "cuerpo", label: "Cuerpo" },
-  { id: "alma", label: "Alma" },
-  { id: "mente", label: "Mente" },
-  { id: "espiritu", label: "Espíritu" },
+export const DIMENSIONS: { id: Dimension; label: string; icon: string }[] = [
+  { id: "cuerpo", label: "Cuerpo", icon: "💪" },
+  { id: "alma", label: "Alma", icon: "✨" },
+  { id: "mente", label: "Mente", icon: "🧠" },
+  { id: "espiritu", label: "Espíritu", icon: "🕊️" },
 ];
 
 export const SECTIONS: SectionConfig[] = [

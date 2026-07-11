@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Header } from "@/components/Header";
+import { ProgressRing } from "@/components/ProgressRing";
 import { RITUALS } from "@/lib/rituals";
 import { Habit, PROFILE_DISPLAY_NAMES, Profile } from "@/lib/types";
 import { useProfile } from "@/lib/profile-context";
@@ -27,17 +28,12 @@ function ProfileStatsCard({ profile }: { profile: Profile }) {
     getTodayProgress(profile.id, RITUAL_STEP_KEYS, RITUALS.length).then(setToday);
   }, [profile.id]);
 
-  const pct = today.total ? Math.round((today.done / today.total) * 100) : 0;
-
   return (
-    <div className="rounded-2xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
-      <p className="font-medium text-zinc-800 dark:text-zinc-100">{PROFILE_DISPLAY_NAMES[profile.name]}</p>
-      <p className="mt-1 text-2xl font-semibold text-zinc-900 dark:text-zinc-50">{xp} XP</p>
-      <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
-        Meta de hoy: {today.done}/{today.total}
-      </p>
-      <div className="mt-1 h-2 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800">
-        <div className="h-full rounded-full bg-emerald-500" style={{ width: `${pct}%` }} />
+    <div className="flex items-center gap-4 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+      <ProgressRing value={today.done} total={today.total} size={72} strokeWidth={7} sublabel="hoy" />
+      <div>
+        <p className="font-medium text-zinc-800 dark:text-zinc-100">{PROFILE_DISPLAY_NAMES[profile.name]}</p>
+        <p className="mt-1 text-2xl font-semibold text-brand-600 dark:text-brand-300">{xp} XP</p>
       </div>
     </div>
   );

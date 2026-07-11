@@ -4,8 +4,23 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useProfile } from "@/lib/profile-context";
 import { PROFILE_DISPLAY_NAMES, ProfileName } from "@/lib/types";
+import { AppLogo } from "@/components/AppLogo";
 
 const NAMES: ProfileName[] = ["jose", "viviana", "dylan"];
+
+function Logo() {
+  return (
+    <div className="flex flex-col items-center">
+      <AppLogo size={64} />
+      <h1 className="mt-3 text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+        Fórmula Abundancia
+      </h1>
+      <p className="mt-1 text-xs font-medium uppercase tracking-widest text-brand-600 dark:text-brand-300">
+        Cambia tu vida
+      </p>
+    </div>
+  );
+}
 
 export default function AuthPage() {
   const { profileId, loading, needsNameSetup, takenNames, chooseName, signIn, signUp } = useProfile();
@@ -42,10 +57,8 @@ export default function AuthPage() {
     return (
       <main className="flex flex-1 flex-col items-center justify-center px-6 py-16">
         <div className="w-full max-w-sm text-center">
-          <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
-            ¿Quién eres?
-          </h1>
-          <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">Elige tu nombre para terminar.</p>
+          <Logo />
+          <p className="mt-8 text-sm text-zinc-500 dark:text-zinc-400">¿Quién eres? Elige tu nombre para terminar.</p>
           {nameError && (
             <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-950/40 dark:text-red-400">
               {nameError}
@@ -59,7 +72,7 @@ export default function AuthPage() {
                   key={name}
                   disabled={taken}
                   onClick={() => pickName(name)}
-                  className="w-full rounded-2xl border border-zinc-200 bg-white px-6 py-4 text-lg font-medium text-zinc-800 shadow-sm transition hover:border-zinc-300 hover:bg-zinc-100 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-40 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
+                  className="w-full rounded-2xl border border-zinc-200 bg-white px-6 py-4 text-lg font-medium text-zinc-800 shadow-sm transition hover:border-brand-300 hover:bg-brand-50 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-40 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:border-brand-800 dark:hover:bg-brand-950/30"
                 >
                   {PROFILE_DISPLAY_NAMES[name]}
                   {taken ? " (ya registrado)" : ""}
@@ -75,12 +88,7 @@ export default function AuthPage() {
   return (
     <main className="flex flex-1 flex-col items-center justify-center px-6 py-16">
       <div className="w-full max-w-sm">
-        <div className="text-center">
-          <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
-            Fórmula Abundancia
-          </h1>
-          <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">Salud · Dinero · Amor</p>
-        </div>
+        <Logo />
 
         <div className="mt-8 flex rounded-xl bg-zinc-100 p-1 dark:bg-zinc-800">
           <button
@@ -112,7 +120,7 @@ export default function AuthPage() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
             required
-            className="rounded-xl border border-zinc-200 px-4 py-3 text-sm outline-none focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+            className="rounded-xl border border-zinc-200 px-4 py-3 text-sm outline-none focus:border-brand-400 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
           />
           <input
             type="password"
@@ -121,13 +129,13 @@ export default function AuthPage() {
             placeholder="Contraseña"
             required
             minLength={6}
-            className="rounded-xl border border-zinc-200 px-4 py-3 text-sm outline-none focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+            className="rounded-xl border border-zinc-200 px-4 py-3 text-sm outline-none focus:border-brand-400 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
           />
           {error && <p className="text-sm text-red-500">{error}</p>}
           <button
             type="submit"
             disabled={submitting}
-            className="mt-2 rounded-xl bg-zinc-900 px-4 py-3 text-sm font-medium text-white transition hover:bg-zinc-800 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
+            className="mt-2 rounded-xl bg-brand-500 px-4 py-3 text-sm font-medium text-white transition hover:bg-brand-600 disabled:opacity-50"
           >
             {submitting ? "..." : mode === "signin" ? "Entrar" : "Crear cuenta"}
           </button>

@@ -5,6 +5,7 @@ import { getRitual, RitualKey } from "@/lib/rituals";
 import { getHabits, getHabitLog, toggleHabitLog, todayStr } from "@/lib/storage";
 import { PROFILE_DISPLAY_NAMES } from "@/lib/types";
 import { useProfile } from "@/lib/profile-context";
+import { ProgressRing } from "@/components/ProgressRing";
 
 export function RitualBlock({ ritualKey }: { ritualKey: RitualKey }) {
   const { adultProfiles } = useProfile();
@@ -52,18 +53,12 @@ export function RitualBlock({ ritualKey }: { ritualKey: RitualKey }) {
         {adultProfiles.map((p) => {
           const done = ritual.steps.filter((step) => doneMap[`${p.id}:${step}`]).length;
           const total = ritual.steps.length;
-          const pct = total ? Math.round((done / total) * 100) : 0;
 
           return (
             <div key={p.id}>
-              <div className="mb-2 flex items-center justify-between text-sm">
+              <div className="mb-3 flex items-center gap-3">
+                <ProgressRing value={done} total={total} size={44} strokeWidth={5} label={`${done}/${total}`} />
                 <span className="font-medium text-zinc-700 dark:text-zinc-200">{PROFILE_DISPLAY_NAMES[p.name]}</span>
-                <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                  {done}/{total} hoy
-                </span>
-              </div>
-              <div className="mb-2 h-1.5 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800">
-                <div className="h-full rounded-full bg-emerald-500 transition-all" style={{ width: `${pct}%` }} />
               </div>
               <div className="flex flex-col gap-1.5">
                 {ritual.steps.map((stepKey, i) => {

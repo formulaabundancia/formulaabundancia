@@ -89,7 +89,7 @@ export function ListBlock({ blockKey, title, allowAssign, itemLabel = "Nuevo ite
           <VisibilityToggle value={visibility} onChange={setVisibility} />
           <button
             type="submit"
-            className="rounded-xl bg-zinc-800 px-4 py-2 text-sm font-medium text-white dark:bg-zinc-700"
+            className="rounded-xl bg-brand-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-600"
           >
             Añadir
           </button>

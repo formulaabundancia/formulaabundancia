@@ -141,7 +141,7 @@ export function RecipeBook() {
     <div className="flex flex-col gap-4">
       <button
         onClick={() => setShowForm((s) => !s)}
-        className="rounded-xl bg-zinc-800 px-4 py-2 text-sm font-medium text-white dark:bg-zinc-700"
+        className="rounded-xl bg-brand-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-600"
       >
         {showForm ? "Cancelar" : "+ Añadir receta"}
       </button>

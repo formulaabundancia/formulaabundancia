@@ -90,10 +90,10 @@ function ProfileRow({ habit, profile, version, onTap }: { habit: Habit; profile:
               key={date}
               onClick={() => onTap(date)}
               title={`${date}${habit.multiCheck ? ` — ${count}` : done ? " — hecho" : ""}`}
-              className={`aspect-square rounded-[3px] transition ${isToday ? "ring-1 ring-emerald-500" : ""}`}
+              className={`aspect-square rounded-[3px] transition ${isToday ? "ring-1 ring-brand-500" : ""}`}
               style={{
                 backgroundColor:
-                  intensity === 0 ? "var(--heatmap-empty, #e4e4e7)" : `rgba(16, 185, 129, ${0.25 + intensity * 0.75})`,
+                  intensity === 0 ? "var(--heatmap-empty)" : `rgba(184, 147, 90, ${0.25 + intensity * 0.75})`,
               }}
             />
           );
