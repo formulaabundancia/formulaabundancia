@@ -68,6 +68,12 @@ const AREA_ACCENT: Record<Area, string> = {
   amor: "text-rose-600 dark:text-rose-400",
 };
 
+const AREA_BLOCK: Record<Area, string> = {
+  salud: "bg-emerald-500",
+  dinero: "bg-amber-500",
+  amor: "bg-rose-500",
+};
+
 const DIMENSION_ICONS: Record<Dimension, React.ComponentType<{ className?: string }>> = {
   cuerpo: DumbbellIcon,
   alma: SparklesIcon,
@@ -76,13 +82,13 @@ const DIMENSION_ICONS: Record<Dimension, React.ComponentType<{ className?: strin
 };
 
 const ADULT_LINKS = [
-  { href: "/app/dylan", Icon: HeartIcon, label: "Dylan", accent: "text-sky-600 dark:text-sky-400" },
-  { href: "/app/red-de-vida", Icon: GlobeIcon, label: "Red de la vida", accent: "text-violet-600 dark:text-violet-400" },
-  { href: "/app/respiracion", Icon: WindIcon, label: "Respiración", accent: "text-cyan-600 dark:text-cyan-400" },
-  { href: "/app/recetas", Icon: UtensilsIcon, label: "Recetas", accent: "text-orange-600 dark:text-orange-400" },
+  { href: "/app/dylan", Icon: HeartIcon, label: "Dylan", block: "bg-sky-500" },
+  { href: "/app/red-de-vida", Icon: GlobeIcon, label: "Red de la vida", block: "bg-violet-500" },
+  { href: "/app/respiracion", Icon: WindIcon, label: "Respiración", block: "bg-cyan-500" },
+  { href: "/app/recetas", Icon: UtensilsIcon, label: "Recetas", block: "bg-orange-500" },
 ];
 
-const CHILD_LINKS = [{ href: "/app/respiracion", Icon: WindIcon, label: "Respiración", accent: "text-cyan-600 dark:text-cyan-400" }];
+const CHILD_LINKS = [{ href: "/app/respiracion", Icon: WindIcon, label: "Respiración", block: "bg-cyan-500" }];
 
 export default function HomePage() {
   const { profile } = useProfile();
@@ -110,12 +116,12 @@ export default function HomePage() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="flex flex-col gap-3 rounded-3xl bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:bg-zinc-900"
+                className={`flex flex-col gap-3 rounded-3xl p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${link.block}`}
               >
-                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800">
-                  <link.Icon className={`h-5 w-5 ${link.accent}`} />
+                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/25">
+                  <link.Icon className="h-5 w-5 text-white" />
                 </span>
-                <span className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">{link.label}</span>
+                <span className="text-sm font-semibold text-white">{link.label}</span>
               </Link>
             ))}
           </div>
@@ -124,6 +130,7 @@ export default function HomePage() {
             AREAS.map((area) => {
               const AreaIcon = AREA_ICONS[area.id];
               const accent = AREA_ACCENT[area.id];
+              const block = AREA_BLOCK[area.id];
               return (
                 <div key={area.id} className="mb-8">
                   <div className="mb-3 flex items-center gap-2">
@@ -141,13 +148,13 @@ export default function HomePage() {
                         <Link
                           key={dim.id}
                           href={`/app/${area.id}/${dim.id}`}
-                          className="flex flex-col gap-2 rounded-3xl bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:bg-zinc-900"
+                          className={`flex flex-col gap-2 rounded-3xl p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${block}`}
                         >
-                          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800">
-                            <DimIcon className={`h-5 w-5 ${accent}`} />
+                          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/25">
+                            <DimIcon className="h-5 w-5 text-white" />
                           </span>
-                          <span className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">{dim.label}</span>
-                          <p className="text-xs leading-snug text-zinc-500 dark:text-zinc-400">{section.subtitle}</p>
+                          <span className="text-sm font-semibold text-white">{dim.label}</span>
+                          <p className="text-xs leading-snug text-white/80">{section.subtitle}</p>
                         </Link>
                       );
                     })}
