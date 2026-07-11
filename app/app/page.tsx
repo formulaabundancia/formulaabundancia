@@ -35,7 +35,7 @@ function TodayHero() {
   }, [profileId]);
 
   return (
-    <div className="mb-6 rounded-3xl bg-zinc-900 p-5 shadow-md">
+    <div className="mb-6 rounded-3xl bg-gradient-to-br from-indigo-600 to-violet-600 p-5 shadow-md">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-xs font-medium uppercase tracking-wide text-white/60">Meta diaria</p>
