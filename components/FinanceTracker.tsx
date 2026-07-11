@@ -83,7 +83,7 @@ export function FinanceTracker({
         </p>
       </div>
 
-      <div className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="rounded-3xl bg-white p-5 shadow-sm dark:bg-zinc-900">
         <h3 className="font-medium text-zinc-800 dark:text-zinc-100">Añadir movimiento</h3>
         <form onSubmit={submitEntry} className="mt-4 flex flex-col gap-2">
           <div className="flex gap-2">
@@ -167,7 +167,7 @@ export function FinanceTracker({
         )}
       </div>
 
-      <div className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="rounded-3xl bg-white p-5 shadow-sm dark:bg-zinc-900">
         <h3 className="font-medium text-zinc-800 dark:text-zinc-100">Metas de ahorro</h3>
         <form onSubmit={submitGoal} className="mt-4 flex gap-2">
           <input

@@ -61,7 +61,7 @@ export function ListBlock({ blockKey, title, allowAssign, itemLabel = "Nuevo ite
   const hechos = items.filter((i) => i.hecho);
 
   return (
-    <div className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
+    <div className="rounded-3xl bg-white p-5 shadow-sm dark:bg-zinc-900">
       <h3 className="font-medium text-zinc-800 dark:text-zinc-100">{title}</h3>
 
       <form onSubmit={submit} className="mt-4 flex flex-col gap-2">

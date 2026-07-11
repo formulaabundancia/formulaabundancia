@@ -7,6 +7,7 @@ export function ProgressRing({
   strokeWidth = 8,
   label,
   sublabel,
+  inverted = false,
 }: {
   value: number;
   total: number;
@@ -14,6 +15,7 @@ export function ProgressRing({
   strokeWidth?: number;
   label?: string;
   sublabel?: string;
+  inverted?: boolean;
 }) {
   const pct = total > 0 ? Math.min(1, value / total) : 0;
   const radius = (size - strokeWidth) / 2;
@@ -31,7 +33,7 @@ export function ProgressRing({
           fill="none"
           stroke="currentColor"
           strokeWidth={strokeWidth}
-          className="text-zinc-200 dark:text-zinc-800"
+          className={inverted ? "text-white/25" : "text-zinc-200 dark:text-zinc-800"}
         />
         <circle
           cx={center}
@@ -43,17 +45,21 @@ export function ProgressRing({
           strokeLinecap="round"
           strokeDasharray={circumference}
           strokeDashoffset={offset}
-          className="text-zinc-900 transition-all duration-700 ease-out dark:text-zinc-100"
+          className={`transition-all duration-700 ease-out ${inverted ? "text-white" : "text-zinc-900 dark:text-zinc-100"}`}
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span
-          className="font-semibold text-zinc-800 dark:text-zinc-100"
+          className={`font-semibold ${inverted ? "text-white" : "text-zinc-800 dark:text-zinc-100"}`}
           style={{ fontSize: size < 56 ? 12 : size < 80 ? 15 : 18 }}
         >
           {label ?? `${value}/${total}`}
         </span>
-        {sublabel && <span className="text-[10px] text-zinc-500 dark:text-zinc-400">{sublabel}</span>}
+        {sublabel && (
+          <span className={`text-[10px] ${inverted ? "text-white/70" : "text-zinc-500 dark:text-zinc-400"}`}>
+            {sublabel}
+          </span>
+        )}
       </div>
     </div>
   );

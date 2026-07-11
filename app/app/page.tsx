@@ -23,53 +23,76 @@ function TodayHero() {
   }, [profileId]);
 
   return (
-    <div className="mb-6 rounded-3xl bg-zinc-100 p-5 dark:bg-zinc-900">
+    <div className="mb-6 rounded-3xl bg-zinc-900 p-5 shadow-md">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Meta diaria</p>
-          <p className="mt-1 text-lg font-semibold text-zinc-900 dark:text-zinc-50">
+          <p className="text-xs font-medium uppercase tracking-wide text-white/60">Meta diaria</p>
+          <p className="mt-1 text-xl font-bold text-white">
             {profile ? `Hola, ${PROFILE_DISPLAY_NAMES[profile.name]}` : "Hola"}
           </p>
         </div>
         {today ? (
-          <ProgressRing value={today.done} total={today.total} size={64} strokeWidth={6} sublabel="hoy" />
+          <ProgressRing value={today.done} total={today.total} size={68} strokeWidth={6} sublabel="hoy" inverted />
         ) : (
-          <div className="h-16 w-16 animate-pulse rounded-full bg-zinc-200 dark:bg-zinc-800" />
+          <div className="h-[68px] w-[68px] animate-pulse rounded-full bg-white/10" />
         )}
       </div>
-      <div className="mt-5">
-        <WeekStrip />
+      <div className="mt-5 rounded-2xl bg-white/10 p-3">
+        <WeekStrip inverted />
       </div>
     </div>
   );
 }
 
-const AREA_STYLES: Record<Area, { card: string; badge: string; iconBg: string }> = {
+const AREA_STYLES: Record<Area, { card: string; iconBg: string }> = {
   salud: {
-    card: "border-emerald-200 hover:border-emerald-300 dark:border-emerald-900 dark:hover:border-emerald-700",
-    badge: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300",
-    iconBg: "bg-emerald-100 dark:bg-emerald-900/40",
+    card: "bg-emerald-50 dark:bg-emerald-950/30",
+    iconBg: "bg-emerald-200/70 dark:bg-emerald-900/60",
   },
   dinero: {
-    card: "border-amber-200 hover:border-amber-300 dark:border-amber-900 dark:hover:border-amber-700",
-    badge: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
-    iconBg: "bg-amber-100 dark:bg-amber-900/40",
+    card: "bg-amber-50 dark:bg-amber-950/30",
+    iconBg: "bg-amber-200/70 dark:bg-amber-900/60",
   },
   amor: {
-    card: "border-rose-200 hover:border-rose-300 dark:border-rose-900 dark:hover:border-rose-700",
-    badge: "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300",
-    iconBg: "bg-rose-100 dark:bg-rose-900/40",
+    card: "bg-rose-50 dark:bg-rose-950/30",
+    iconBg: "bg-rose-200/70 dark:bg-rose-900/60",
   },
 };
 
 const ADULT_LINKS = [
-  { href: "/app/dylan", icon: "💙", label: "Dylan" },
-  { href: "/app/red-de-vida", icon: "🌐", label: "Red de la vida" },
-  { href: "/app/respiracion", icon: "🫁", label: "Respiración" },
-  { href: "/app/recetas", icon: "🍽️", label: "Recetas" },
+  { href: "/app/dylan", icon: "💙", label: "Dylan", card: "bg-sky-50 dark:bg-sky-950/30", iconBg: "bg-sky-200/70 dark:bg-sky-900/60" },
+  {
+    href: "/app/red-de-vida",
+    icon: "🌐",
+    label: "Red de la vida",
+    card: "bg-violet-50 dark:bg-violet-950/30",
+    iconBg: "bg-violet-200/70 dark:bg-violet-900/60",
+  },
+  {
+    href: "/app/respiracion",
+    icon: "🫁",
+    label: "Respiración",
+    card: "bg-cyan-50 dark:bg-cyan-950/30",
+    iconBg: "bg-cyan-200/70 dark:bg-cyan-900/60",
+  },
+  {
+    href: "/app/recetas",
+    icon: "🍽️",
+    label: "Recetas",
+    card: "bg-orange-50 dark:bg-orange-950/30",
+    iconBg: "bg-orange-200/70 dark:bg-orange-900/60",
+  },
 ];
 
-const CHILD_LINKS = [{ href: "/app/respiracion", icon: "🫁", label: "Respiración" }];
+const CHILD_LINKS = [
+  {
+    href: "/app/respiracion",
+    icon: "🫁",
+    label: "Respiración",
+    card: "bg-cyan-50 dark:bg-cyan-950/30",
+    iconBg: "bg-cyan-200/70 dark:bg-cyan-900/60",
+  },
+];
 
 export default function HomePage() {
   const { profile } = useProfile();
@@ -97,12 +120,12 @@ export default function HomePage() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="flex flex-col gap-3 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-zinc-400 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-500"
+                className={`flex flex-col gap-3 rounded-3xl p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${link.card}`}
               >
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-100 text-lg dark:bg-zinc-800">
+                <span className={`flex h-11 w-11 items-center justify-center rounded-full text-xl ${link.iconBg}`}>
                   {link.icon}
                 </span>
-                <span className="text-sm font-medium text-zinc-800 dark:text-zinc-100">{link.label}</span>
+                <span className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">{link.label}</span>
               </Link>
             ))}
           </div>
@@ -128,13 +151,13 @@ export default function HomePage() {
                         <Link
                           key={dim.id}
                           href={`/app/${area.id}/${dim.id}`}
-                          className={`flex flex-col gap-2 rounded-2xl border bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:bg-zinc-900 ${styles.card}`}
+                          className={`flex flex-col gap-2 rounded-3xl p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${styles.card}`}
                         >
-                          <span className={`flex h-9 w-9 items-center justify-center rounded-full text-base ${styles.iconBg}`}>
+                          <span className={`flex h-10 w-10 items-center justify-center rounded-full text-lg ${styles.iconBg}`}>
                             {dim.icon}
                           </span>
                           <span className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">{dim.label}</span>
-                          <p className="text-xs leading-snug text-zinc-500 dark:text-zinc-400">{section.subtitle}</p>
+                          <p className="text-xs leading-snug text-zinc-600 dark:text-zinc-400">{section.subtitle}</p>
                         </Link>
                       );
                     })}

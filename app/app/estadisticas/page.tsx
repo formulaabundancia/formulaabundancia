@@ -29,7 +29,7 @@ function ProfileStatsCard({ profile }: { profile: Profile }) {
   }, [profile.id]);
 
   return (
-    <div className="flex items-center gap-4 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+    <div className="flex items-center gap-4 rounded-3xl bg-white p-4 shadow-sm dark:bg-zinc-900">
       <ProgressRing value={today.done} total={today.total} size={72} strokeWidth={7} sublabel="hoy" />
       <div>
         <p className="font-medium text-zinc-800 dark:text-zinc-100">{PROFILE_DISPLAY_NAMES[profile.name]}</p>
@@ -96,7 +96,7 @@ export default function EstadisticasPage() {
             ))}
           </div>
 
-          <div className="mt-8 rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
+          <div className="mt-8 rounded-3xl bg-white p-5 shadow-sm dark:bg-zinc-900">
             <h2 className="font-medium text-zinc-800 dark:text-zinc-100">Rituales de hoy</h2>
             <div className="mt-4 flex flex-col gap-3">
               {RITUALS.map((r) => (
@@ -117,7 +117,7 @@ export default function EstadisticasPage() {
             </div>
           </div>
 
-          <div className="mt-6 rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
+          <div className="mt-6 rounded-3xl bg-white p-5 shadow-sm dark:bg-zinc-900">
             <h2 className="font-medium text-zinc-800 dark:text-zinc-100">Rachas de hábitos sueltos</h2>
             <div className="mt-4 flex flex-col gap-3">
               {looseHabits.map((h) => (
@@ -139,7 +139,7 @@ export default function EstadisticasPage() {
             </div>
           </div>
 
-          <div className="mt-6 rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
+          <div className="mt-6 rounded-3xl bg-white p-5 shadow-sm dark:bg-zinc-900">
             <h2 className="font-medium text-zinc-800 dark:text-zinc-100">Últimos 7 días</h2>
             <div className="mt-4 flex flex-col gap-4">
               {adultProfiles.map((p) => {

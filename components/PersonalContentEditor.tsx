@@ -86,7 +86,7 @@ export function PersonalContentEditor({ mode }: { mode: "decretos" | "visualizac
 
   if (mode === "decretos") {
     return (
-      <div className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="rounded-3xl bg-white p-5 shadow-sm dark:bg-zinc-900">
         <h3 className="font-medium text-zinc-800 dark:text-zinc-100">Decretos y agradecimientos</h3>
         <div className="mt-4 flex flex-col gap-3">
           <EditableList
@@ -114,7 +114,7 @@ export function PersonalContentEditor({ mode }: { mode: "decretos" | "visualizac
   };
 
   return (
-    <div className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
+    <div className="rounded-3xl bg-white p-5 shadow-sm dark:bg-zinc-900">
       <h3 className="font-medium text-zinc-800 dark:text-zinc-100">Visualización</h3>
       <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
         Mano en el corazón, di la frase e imagina el deseo — 30 segundos por cada uno. Cuando sientas que ya lo
