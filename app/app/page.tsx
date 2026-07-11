@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Header } from "@/components/Header";
 import { ProgressRing } from "@/components/ProgressRing";
 import { WeekStrip } from "@/components/WeekStrip";
+import { RitualBlock } from "@/components/RitualBlock";
 import { AREAS, DIMENSIONS, SECTIONS } from "@/lib/sections";
 import { Area, PROFILE_DISPLAY_NAMES } from "@/lib/types";
 import { useProfile } from "@/lib/profile-context";
@@ -59,20 +60,12 @@ const AREA_STYLES: Record<Area, { card: string; badge: string; iconBg: string }>
 
 const ADULT_LINKS = [
   { href: "/app/dylan", icon: "💙", label: "Dylan" },
-  { href: "/app/tareas", icon: "🏠", label: "Tareas de la casa" },
   { href: "/app/red-de-vida", icon: "🌐", label: "Red de la vida" },
   { href: "/app/respiracion", icon: "🫁", label: "Respiración" },
   { href: "/app/recetas", icon: "🍽️", label: "Recetas" },
-  { href: "/app/libreria", icon: "📚", label: "Librería de hábitos" },
-  { href: "/app/estadisticas", icon: "📊", label: "Estadísticas" },
 ];
 
-const CHILD_LINKS = [
-  { href: "/app/dylan", icon: "💙", label: "Mi sección" },
-  { href: "/app/tareas", icon: "🏠", label: "Tareas de la casa" },
-  { href: "/app/red-de-vida", icon: "🌐", label: "Red de la vida" },
-  { href: "/app/respiracion", icon: "🫁", label: "Respiración" },
-];
+const CHILD_LINKS = [{ href: "/app/respiracion", icon: "🫁", label: "Respiración" }];
 
 export default function HomePage() {
   const { profile } = useProfile();
@@ -84,7 +77,18 @@ export default function HomePage() {
       <main className="flex-1 px-5 py-6">
         <div className="mx-auto max-w-2xl">
           {!isChild && <TodayHero />}
-          <div className="mb-8 grid grid-cols-2 gap-3">
+
+          {!isChild && (
+            <div className="mb-8 flex flex-col gap-3">
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                Rutinas de hoy
+              </h2>
+              <RitualBlock ritualKey="manana" />
+              <RitualBlock ritualKey="noche" />
+            </div>
+          )}
+
+          <div className={`mb-8 grid gap-3 ${isChild ? "grid-cols-1" : "grid-cols-2"}`}>
             {(isChild ? CHILD_LINKS : ADULT_LINKS).map((link) => (
               <Link
                 key={link.href}

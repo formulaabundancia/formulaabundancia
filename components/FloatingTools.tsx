@@ -131,7 +131,7 @@ export function FloatingTools() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-zinc-900 text-2xl text-white shadow-lg transition hover:scale-105 dark:bg-zinc-100 dark:text-zinc-900"
+        className="fixed bottom-20 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-zinc-900 text-2xl text-white shadow-lg transition hover:scale-105 dark:bg-zinc-100 dark:text-zinc-900"
         aria-label="Herramientas"
       >
         ⏱️
