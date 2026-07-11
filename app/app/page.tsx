@@ -16,7 +16,7 @@ const RITUAL_STEP_KEYS = new Set(RITUALS.flatMap((r) => r.steps));
 
 function TodayHero() {
   const { profile, profileId } = useProfile();
-  const [today, setToday] = useState({ done: 0, total: 0 });
+  const [today, setToday] = useState<{ done: number; total: number } | null>(null);
 
   useEffect(() => {
     if (profileId) getTodayProgress(profileId, RITUAL_STEP_KEYS, RITUALS.length).then(setToday);
@@ -31,7 +31,11 @@ function TodayHero() {
             {profile ? `Hola, ${PROFILE_DISPLAY_NAMES[profile.name]}` : "Hola"}
           </p>
         </div>
-        <ProgressRing value={today.done} total={today.total} size={64} strokeWidth={6} sublabel="hoy" />
+        {today ? (
+          <ProgressRing value={today.done} total={today.total} size={64} strokeWidth={6} sublabel="hoy" />
+        ) : (
+          <div className="h-16 w-16 animate-pulse rounded-full bg-zinc-200 dark:bg-zinc-800" />
+        )}
       </div>
       <div className="mt-5">
         <WeekStrip />
