@@ -612,11 +612,13 @@ function mapRecipe(r: Record<string, unknown>): Recipe {
     ingredientes: r.ingredientes as string,
     instrucciones: r.instrucciones as string,
     favorita: r.favorita as boolean,
+    probada: r.probada as boolean,
+    status: r.status as Recipe["status"],
   };
 }
 
-export async function getRecipes(): Promise<Recipe[]> {
-  const { data } = await supabase.from("recipes").select("*").order("nombre");
+export async function getRecipes(status: Recipe["status"] = "active"): Promise<Recipe[]> {
+  const { data } = await supabase.from("recipes").select("*").eq("status", status).order("nombre");
   return (data ?? []).map(mapRecipe);
 }
 
@@ -625,15 +627,25 @@ export async function addRecipe(
   ingredientes: string,
   instrucciones: string,
   profileId: ProfileId,
-  visibility: Visibility
+  visibility: Visibility,
+  status: Recipe["status"] = "active",
+  favorita = false
 ) {
   await supabase
     .from("recipes")
-    .insert({ owner_id: profileId, visibility, nombre, ingredientes, instrucciones, favorita: false });
+    .insert({ owner_id: profileId, visibility, nombre, ingredientes, instrucciones, favorita, probada: false, status });
 }
 
 export async function toggleRecipeFavorita(id: string, current: boolean) {
   await supabase.from("recipes").update({ favorita: !current }).eq("id", id);
+}
+
+export async function toggleRecipeProbada(id: string, current: boolean) {
+  await supabase.from("recipes").update({ probada: !current }).eq("id", id);
+}
+
+export async function setRecipeStatus(id: string, status: Recipe["status"]) {
+  await supabase.from("recipes").update({ status }).eq("id", id);
 }
 
 export async function deleteRecipe(id: string) {

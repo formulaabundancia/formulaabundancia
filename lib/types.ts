@@ -146,6 +146,8 @@ export interface WorkSession {
   minutos: number;
 }
 
+export type RecipeStatus = "active" | "suggested" | "declined";
+
 export interface Recipe {
   id: string;
   ownerId: ProfileId;
@@ -154,4 +156,6 @@ export interface Recipe {
   ingredientes: string;
   instrucciones: string;
   favorita: boolean;
+  probada: boolean;
+  status: RecipeStatus;
 }

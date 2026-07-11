@@ -37,3 +37,46 @@ export const DEFAULT_RECIPES = [
     favorita: false,
   },
 ];
+
+// Sugerencias: más platos murcianos/españoles que aparecen en "Sugerencias"
+// dentro de Recetas, para aceptar o descartar — no entran directas a la lista.
+export const SUGGESTED_RECIPES = [
+  {
+    nombre: "Michirones",
+    ingredientes:
+      "500g de habas secas murcianas · chorizo · jamón (punta o hueso) · morcilla (opcional) · guindilla · pimentón · ajo · laurel · aceite de oliva",
+    instrucciones:
+      "Deja las habas en remojo un día entero. Cocínalas a fuego lento en olla (mejor exprés) con el chorizo, el jamón, el laurel, la guindilla y un chorro de aceite, cubiertas de agua, hasta que estén muy tiernas (varias horas si no usas exprés). Añade el pimentón casi al final. Se sirve caliente, típico de febrero/marzo en Murcia.",
+  },
+  {
+    nombre: "Caldero murciano",
+    ingredientes:
+      "Arroz · pescado de roca (mero, dorada...) · ñoras · ajo · tomate rallado · pimentón · aceite de oliva · caldo de pescado",
+    instrucciones:
+      "Haz un caldo con el pescado y las cabezas/espinas. En el caldero, sofríe ajo, ñora y tomate, añade pimentón y el caldo colado. Cuando hierva, añade el arroz y cocina unos 18-20 min. El pescado se suele servir aparte, sobre el arroz o antes de él, típico del Mar Menor.",
+  },
+  {
+    nombre: "Pisto murciano",
+    ingredientes: "Calabacín · pimiento rojo y verde · cebolla · tomate · aceite de oliva · sal · huevo frito (opcional para acompañar)",
+    instrucciones:
+      "Pocha la cebolla y los pimientos en aceite a fuego medio. Añade el calabacín en dados y rehógalo. Incorpora el tomate (rallado o troceado) y cocina a fuego lento hasta que todo esté bien pochado y sin exceso de líquido, unos 30-40 min. Se puede servir con un huevo frito por encima.",
+  },
+  {
+    nombre: "Migas",
+    ingredientes: "Pan duro del día anterior · agua con sal · aceite de oliva · ajos · panceta y chorizo · pimentón (opcional)",
+    instrucciones:
+      "Trocea el pan en migas pequeñas y humedécelo con agua salada, tápalo unas horas (o de un día para otro). Fríe ajos, panceta y chorizo en aceite, retíralos, y en ese mismo aceite ve sofriendo las migas removiendo constantemente hasta que queden sueltas y doradas. Junta todo y sirve caliente.",
+  },
+  {
+    nombre: "Salmorejo",
+    ingredientes: "1kg de tomates maduros · 200g de pan duro · 1 diente de ajo · aceite de oliva virgen extra · sal · vinagre (opcional) · huevo duro y jamón para decorar",
+    instrucciones:
+      "Tritura los tomates con el ajo, el pan remojado y una pizca de sal. Ve añadiendo aceite en hilo mientras trituras hasta que quede fino y con cuerpo. Rectifica de sal. Enfría en la nevera y sirve con huevo duro picado y jamón por encima.",
+  },
+  {
+    nombre: "Paparajotes (postre murciano)",
+    ingredientes: "Hojas de limonero frescas y limpias · harina · huevo · leche · levadura · azúcar · canela · aceite para freír",
+    instrucciones:
+      "Prepara una masa tipo rebozado con harina, huevo, leche y una pizca de levadura. Moja cada hoja de limonero en la masa y fríe en aceite caliente hasta dorar. Escurre y reboza en azúcar con canela al momento. Se comen sin la hoja, solo el rebozado (la hoja da el aroma).",
+  },
+];

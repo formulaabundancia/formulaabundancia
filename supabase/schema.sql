@@ -196,7 +196,9 @@ create table if not exists recipes (
   nombre text not null,
   ingredientes text not null default '',
   instrucciones text not null default '',
-  favorita boolean not null default false
+  favorita boolean not null default false,
+  probada boolean not null default false,
+  status text not null default 'active' check (status in ('active', 'suggested', 'declined'))
 );
 
 alter table recipes enable row level security;
