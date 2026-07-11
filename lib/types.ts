@@ -145,3 +145,13 @@ export interface WorkSession {
   date: string;
   minutos: number;
 }
+
+export interface Recipe {
+  id: string;
+  ownerId: ProfileId;
+  visibility: Visibility;
+  nombre: string;
+  ingredientes: string;
+  instrucciones: string;
+  favorita: boolean;
+}

@@ -26,6 +26,7 @@ const ADULT_LINKS = [
   { href: "/app/tareas", label: "🏠 Tareas de la casa" },
   { href: "/app/red-de-vida", label: "🌐 Red de la vida" },
   { href: "/app/respiracion", label: "🫁 Respiración" },
+  { href: "/app/recetas", label: "🍽️ Recetas" },
   { href: "/app/libreria", label: "📚 Librería de hábitos" },
   { href: "/app/estadisticas", label: "📊 Estadísticas" },
 ];

@@ -17,6 +17,7 @@ import {
   MealTipo,
   PersonalContent,
   ProfileId,
+  Recipe,
   Relacion,
   Visibility,
   WorkSession,
@@ -598,6 +599,45 @@ export async function getTodayWorkMinutes(profileId: ProfileId): Promise<number>
     .eq("profile_id", profileId)
     .eq("date", todayStr());
   return (data ?? []).reduce((acc, s) => acc + (s.minutos as number), 0);
+}
+
+// ---- Recetas ----
+
+function mapRecipe(r: Record<string, unknown>): Recipe {
+  return {
+    id: r.id as string,
+    ownerId: r.owner_id as string,
+    visibility: r.visibility as Visibility,
+    nombre: r.nombre as string,
+    ingredientes: r.ingredientes as string,
+    instrucciones: r.instrucciones as string,
+    favorita: r.favorita as boolean,
+  };
+}
+
+export async function getRecipes(): Promise<Recipe[]> {
+  const { data } = await supabase.from("recipes").select("*").order("nombre");
+  return (data ?? []).map(mapRecipe);
+}
+
+export async function addRecipe(
+  nombre: string,
+  ingredientes: string,
+  instrucciones: string,
+  profileId: ProfileId,
+  visibility: Visibility
+) {
+  await supabase
+    .from("recipes")
+    .insert({ owner_id: profileId, visibility, nombre, ingredientes, instrucciones, favorita: false });
+}
+
+export async function toggleRecipeFavorita(id: string, current: boolean) {
+  await supabase.from("recipes").update({ favorita: !current }).eq("id", id);
+}
+
+export async function deleteRecipe(id: string) {
+  await supabase.from("recipes").delete().eq("id", id);
 }
 
 export type { WorkSession };

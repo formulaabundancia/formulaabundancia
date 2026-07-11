@@ -187,6 +187,26 @@ alter table work_sessions enable row level security;
 create policy work_sessions_own on work_sessions for all
   using (profile_id = auth.uid()) with check (profile_id = auth.uid());
 
+-- ============ RECETAS ============
+
+create table if not exists recipes (
+  id uuid primary key default gen_random_uuid(),
+  owner_id uuid not null references profiles(id) on delete cascade,
+  visibility text not null default 'shared' check (visibility in ('private', 'shared')),
+  nombre text not null,
+  ingredientes text not null default '',
+  instrucciones text not null default '',
+  favorita boolean not null default false
+);
+
+alter table recipes enable row level security;
+
+create policy recipes_select_own_or_shared on recipes for select
+  using (owner_id = auth.uid() or visibility = 'shared');
+create policy recipes_insert_own on recipes for insert with check (owner_id = auth.uid());
+create policy recipes_update_own on recipes for update using (owner_id = auth.uid());
+create policy recipes_delete_own on recipes for delete using (owner_id = auth.uid());
+
 -- ============ SEED de hábitos (catálogo inicial) ============
 
 insert into habits (key, label, area, dimension, status, multi_check, meta_diaria) values
