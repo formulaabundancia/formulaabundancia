@@ -59,7 +59,7 @@ export function LogBlock({ blockKey, title, categorias, trackMonto, placeholder 
                 onClick={() => setCategoria(c)}
                 className={`rounded-full px-3 py-1 text-xs font-medium transition ${
                   categoria === c
-                    ? "bg-brand-500 text-white"
+                    ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900"
                     : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300"
                 }`}
               >
@@ -89,7 +89,7 @@ export function LogBlock({ blockKey, title, categorias, trackMonto, placeholder 
           <VisibilityToggle value={visibility} onChange={setVisibility} />
           <button
             type="submit"
-            className="rounded-xl bg-brand-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-600"
+            className="rounded-xl bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-700 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
           >
             Guardar
           </button>

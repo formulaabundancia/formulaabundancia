@@ -33,7 +33,7 @@ function ProfileStatsCard({ profile }: { profile: Profile }) {
       <ProgressRing value={today.done} total={today.total} size={72} strokeWidth={7} sublabel="hoy" />
       <div>
         <p className="font-medium text-zinc-800 dark:text-zinc-100">{PROFILE_DISPLAY_NAMES[profile.name]}</p>
-        <p className="mt-1 text-2xl font-semibold text-brand-600 dark:text-brand-300">{xp} XP</p>
+        <p className="mt-1 text-2xl font-semibold text-zinc-900 dark:text-zinc-50">{xp} XP</p>
       </div>
     </div>
   );

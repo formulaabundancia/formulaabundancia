@@ -55,9 +55,9 @@ export default function HomePage() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="flex flex-col gap-3 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-brand-800"
+                className="flex flex-col gap-3 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-zinc-400 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-500"
               >
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-100 text-lg dark:bg-brand-900/40">
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-100 text-lg dark:bg-zinc-800">
                   {link.icon}
                 </span>
                 <span className="text-sm font-medium text-zinc-800 dark:text-zinc-100">{link.label}</span>

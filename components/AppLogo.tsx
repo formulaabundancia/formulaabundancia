@@ -9,7 +9,7 @@ export function AppLogo({ size = 28 }: { size?: number }) {
   if (failed) {
     return (
       <span
-        className="flex shrink-0 items-center justify-center rounded-full bg-brand-500 text-white"
+        className="flex shrink-0 items-center justify-center rounded-full bg-zinc-900 text-white dark:bg-white dark:text-zinc-900"
         style={{ width: size, height: size, fontSize: size * 0.55 }}
       >
         ⏳

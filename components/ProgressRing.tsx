@@ -31,7 +31,7 @@ export function ProgressRing({
           fill="none"
           stroke="currentColor"
           strokeWidth={strokeWidth}
-          className="text-brand-100 dark:text-brand-900"
+          className="text-zinc-200 dark:text-zinc-800"
         />
         <circle
           cx={center}
@@ -43,7 +43,7 @@ export function ProgressRing({
           strokeLinecap="round"
           strokeDasharray={circumference}
           strokeDashoffset={offset}
-          className="text-brand-500 transition-all duration-700 ease-out dark:text-brand-400"
+          className="text-zinc-900 transition-all duration-700 ease-out dark:text-zinc-100"
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">

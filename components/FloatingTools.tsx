@@ -59,7 +59,7 @@ function PomodoroTab() {
       <div className="flex gap-2">
         <button
           onClick={() => setRunning((r) => !r)}
-          className="rounded-xl bg-brand-500 px-5 py-2 text-sm font-medium text-white transition hover:bg-brand-600"
+          className="rounded-xl bg-zinc-900 px-5 py-2 text-sm font-medium text-white transition hover:bg-zinc-700 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
         >
           {running ? "Pausar" : "Empezar"}
         </button>
@@ -103,7 +103,7 @@ function CronometroTab() {
       <div className="flex gap-2">
         <button
           onClick={() => setRunning((r) => !r)}
-          className="rounded-xl bg-brand-500 px-5 py-2 text-sm font-medium text-white transition hover:bg-brand-600"
+          className="rounded-xl bg-zinc-900 px-5 py-2 text-sm font-medium text-white transition hover:bg-zinc-700 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
         >
           {running ? "Pausar" : "Empezar"}
         </button>
@@ -154,7 +154,7 @@ export function FloatingTools() {
                   onClick={() => setTab("pomodoro")}
                   className={`rounded-full px-3 py-1 text-sm font-medium ${
                     tab === "pomodoro"
-                      ? "bg-brand-500 text-white"
+                      ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900"
                       : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300"
                   }`}
                 >
@@ -164,7 +164,7 @@ export function FloatingTools() {
                   onClick={() => setTab("cronometro")}
                   className={`rounded-full px-3 py-1 text-sm font-medium ${
                     tab === "cronometro"
-                      ? "bg-brand-500 text-white"
+                      ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900"
                       : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300"
                   }`}
                 >

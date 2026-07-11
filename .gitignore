@@ -40,6 +40,9 @@ yarn-error.log*
 # Claude Code session tooling
 .claude
 
+# assets de diseño personales (no públicos)
+/Diseño
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

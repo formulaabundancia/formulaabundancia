@@ -85,16 +85,18 @@ function ProfileRow({ habit, profile, version, onTap }: { habit: Habit; profile:
           const count = entry?.count ?? 0;
           const done = habit.multiCheck ? count >= (habit.metaDiaria ?? 1) : (entry?.done ?? false);
           const intensity = habit.multiCheck ? Math.min(1, count / (habit.metaDiaria ?? 1)) : done ? 1 : 0;
+          const fillClass =
+            intensity === 0
+              ? "bg-zinc-100 dark:bg-zinc-800"
+              : intensity < 1
+                ? "bg-zinc-400 dark:bg-zinc-500"
+                : "bg-zinc-900 dark:bg-zinc-100";
           return (
             <button
               key={date}
               onClick={() => onTap(date)}
               title={`${date}${habit.multiCheck ? ` — ${count}` : done ? " — hecho" : ""}`}
-              className={`aspect-square rounded-[3px] transition ${isToday ? "ring-1 ring-brand-500" : ""}`}
-              style={{
-                backgroundColor:
-                  intensity === 0 ? "var(--heatmap-empty)" : `rgba(184, 147, 90, ${0.25 + intensity * 0.75})`,
-              }}
+              className={`aspect-square rounded-[3px] transition ${fillClass} ${isToday ? "ring-1 ring-zinc-900 dark:ring-zinc-100" : ""}`}
             />
           );
         })}

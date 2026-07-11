@@ -15,7 +15,7 @@ function Logo() {
       <h1 className="mt-3 text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
         Fórmula Abundancia
       </h1>
-      <p className="mt-1 text-xs font-medium uppercase tracking-widest text-brand-600 dark:text-brand-300">
+      <p className="mt-1 text-xs font-medium uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
         Cambia tu vida
       </p>
     </div>
@@ -72,7 +72,7 @@ export default function AuthPage() {
                   key={name}
                   disabled={taken}
                   onClick={() => pickName(name)}
-                  className="w-full rounded-2xl border border-zinc-200 bg-white px-6 py-4 text-lg font-medium text-zinc-800 shadow-sm transition hover:border-brand-300 hover:bg-brand-50 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-40 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:border-brand-800 dark:hover:bg-brand-950/30"
+                  className="w-full rounded-2xl border border-zinc-200 bg-white px-6 py-4 text-lg font-medium text-zinc-800 shadow-sm transition hover:border-zinc-400 hover:bg-zinc-50 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-40 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:border-zinc-500 dark:hover:bg-zinc-800"
                 >
                   {PROFILE_DISPLAY_NAMES[name]}
                   {taken ? " (ya registrado)" : ""}
@@ -120,7 +120,7 @@ export default function AuthPage() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
             required
-            className="rounded-xl border border-zinc-200 px-4 py-3 text-sm outline-none focus:border-brand-400 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+            className="rounded-xl border border-zinc-200 px-4 py-3 text-sm outline-none focus:border-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:focus:border-zinc-100"
           />
           <input
             type="password"
@@ -129,13 +129,13 @@ export default function AuthPage() {
             placeholder="Contraseña"
             required
             minLength={6}
-            className="rounded-xl border border-zinc-200 px-4 py-3 text-sm outline-none focus:border-brand-400 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+            className="rounded-xl border border-zinc-200 px-4 py-3 text-sm outline-none focus:border-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:focus:border-zinc-100"
           />
           {error && <p className="text-sm text-red-500">{error}</p>}
           <button
             type="submit"
             disabled={submitting}
-            className="mt-2 rounded-xl bg-brand-500 px-4 py-3 text-sm font-medium text-white transition hover:bg-brand-600 disabled:opacity-50"
+            className="mt-2 rounded-xl bg-zinc-900 px-4 py-3 text-sm font-medium text-white transition hover:bg-zinc-700 disabled:opacity-50 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
           >
             {submitting ? "..." : mode === "signin" ? "Entrar" : "Crear cuenta"}
           </button>

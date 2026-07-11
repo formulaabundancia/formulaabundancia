@@ -28,7 +28,7 @@ export function Header({ backHref }: { backHref?: string }) {
       </div>
       <div className="flex items-center gap-3 text-sm">
         <span className="text-zinc-500 dark:text-zinc-400">
-          Hola, <span className="font-medium text-brand-600 dark:text-brand-300">{name}</span>
+          Hola, <span className="font-medium text-zinc-900 dark:text-zinc-100">{name}</span>
         </span>
         <button
           onClick={logout}
