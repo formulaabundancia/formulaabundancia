@@ -108,6 +108,7 @@ export default function HomePage() {
               </h2>
               <RitualBlock ritualKey="manana" />
               <RitualBlock ritualKey="noche" />
+              <RitualBlock ritualKey="bienestar" />
             </div>
           )}
 

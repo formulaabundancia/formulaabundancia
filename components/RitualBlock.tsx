@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getRitual, RitualKey, STEP_META } from "@/lib/rituals";
+import { dailyTip, getRitual, RitualKey, STEP_META } from "@/lib/rituals";
 import { getHabits, getHabitLog, getRitualStreak, toggleHabitLog, todayStr } from "@/lib/storage";
 import { PROFILE_DISPLAY_NAMES } from "@/lib/types";
 import { useProfile } from "@/lib/profile-context";
@@ -61,7 +61,7 @@ export function RitualBlock({ ritualKey }: { ritualKey: RitualKey }) {
 
       <div className="mt-3 flex items-start gap-2 rounded-2xl bg-amber-50 px-3 py-2.5 dark:bg-amber-950/20">
         <span className="text-sm">💡</span>
-        <p className="text-xs italic leading-snug text-amber-800 dark:text-amber-300">{ritual.tip}</p>
+        <p className="text-xs italic leading-snug text-amber-800 dark:text-amber-300">{dailyTip(ritual)}</p>
       </div>
 
       <div className="mt-4 flex flex-col gap-5">

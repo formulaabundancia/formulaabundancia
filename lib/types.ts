@@ -104,7 +104,9 @@ export interface ListItem {
   blockKey: string;
   titulo: string;
   hecho: boolean;
+  hechoDate: string | null;
   asignadoA: ProfileId | null;
+  categoria: string | null;
 }
 
 // Mini-ledger con importe, sin "hecho" (ingresos, patrimonio, gastos fijos).
@@ -164,4 +166,6 @@ export interface Recipe {
   favorita: boolean;
   probada: boolean;
   status: RecipeStatus;
+  imagenUrl?: string;
+  videoUrl?: string;
 }

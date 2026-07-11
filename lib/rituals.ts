@@ -1,9 +1,9 @@
-export type RitualKey = "manana" | "noche" | "skincare";
+export type RitualKey = "manana" | "noche" | "bienestar" | "skincare";
 
 export interface RitualConfig {
   key: RitualKey;
   title: string;
-  tip: string;
+  tips: string[];
   steps: string[]; // habit keys, en orden
 }
 
@@ -29,13 +29,29 @@ export const STEP_META: Record<string, StepMeta> = {
   skincare_serum: { icon: "✨", tag: "Diario" },
   skincare_hidratante: { icon: "🧴", tag: "Diario" },
   skincare_spf: { icon: "☀️", tag: "Diario" },
+  bienestar_batido_manana: { icon: "🥤", time: "7:00", tag: "Diario" },
+  bienestar_te_manana: { icon: "🍵", time: "7:00", tag: "Diario" },
+  bienestar_aloe_manana: { icon: "🌿", time: "7:00", tag: "Diario" },
+  bienestar_microbiota_manana: { icon: "🦠", time: "7:00", tag: "Diario" },
+  bienestar_phyto_manana: { icon: "🌱", time: "7:00", tag: "Diario" },
+  bienestar_batido_noche: { icon: "🥤", time: "18:30", tag: "Diario" },
+  bienestar_modo_nocturno: { icon: "🌙", time: "18:30", tag: "Diario" },
+  bienestar_phyto_noche: { icon: "🌱", time: "18:30", tag: "Diario" },
 };
 
 export const RITUALS: RitualConfig[] = [
   {
     key: "manana",
     title: "Ritual de mañana",
-    tip: "Cada mañana que te levantas temprano cuando el mundo duerme, estás ganando ventaja real.",
+    tips: [
+      "Cada mañana que te levantas temprano cuando el mundo duerme, estás ganando ventaja real.",
+      "No hace falta hacerlo perfecto, solo hacerlo. La constancia gana a la intensidad.",
+      "Lo que decretas y agradeces por la mañana marca el tono del resto del día.",
+      "Un pequeño paso cada mañana es mejor que un gran salto que nunca llega.",
+      "Hoy también es un buen día para empezar de nuevo, sin culpa por ayer.",
+      "La disciplina de hoy es la libertad de mañana.",
+      "Respira, agradece, y da el primer paso — el resto viene solo.",
+    ],
     steps: [
       "manana_despertar_agua",
       "manana_bano",
@@ -47,13 +63,40 @@ export const RITUALS: RitualConfig[] = [
   {
     key: "noche",
     title: "Ritual de noche",
-    tip: "Revisa tu día con amabilidad — lo que aprendes hoy es el cimiento de mañana.",
+    tips: [
+      "Revisa tu día con amabilidad — lo que aprendes hoy es el cimiento de mañana.",
+      "Cerrar el día en calma es tan importante como empezarlo con energía.",
+      "No te lleves los pendientes de hoy a la cama: planea mañana y suelta.",
+      "Cada cosa que aprendiste hoy, por pequeña que sea, cuenta.",
+      "Dormir bien es parte del entrenamiento, no una pausa en él.",
+      "Un buen cierre de día empieza con soltar el móvil un rato antes.",
+    ],
     steps: ["noche_ducha", "noche_revision_dia", "noche_aprendizajes", "noche_planear_manana", "noche_lectura"],
+  },
+  {
+    key: "bienestar",
+    title: "Ritual de bienestar",
+    tips: [
+      "Tu cuerpo rinde mejor cuando le das lo que necesita, a su hora.",
+      "La nutrición constante es la base de la energía del día.",
+      "Pequeños hábitos de bienestar, sostenidos, cambian mucho más que un mes de esfuerzo puntual.",
+      "Cuidar de tu cuerpo por la mañana y por la noche es cuidar de todo lo demás.",
+    ],
+    steps: [
+      "bienestar_batido_manana",
+      "bienestar_te_manana",
+      "bienestar_aloe_manana",
+      "bienestar_microbiota_manana",
+      "bienestar_phyto_manana",
+      "bienestar_batido_noche",
+      "bienestar_modo_nocturno",
+      "bienestar_phyto_noche",
+    ],
   },
   {
     key: "skincare",
     title: "Skincare (ritual coreano)",
-    tip: "La constancia importa más que la cantidad de pasos.",
+    tips: ["La constancia importa más que la cantidad de pasos."],
     steps: ["skincare_limpieza", "skincare_tonico", "skincare_serum", "skincare_hidratante", "skincare_spf"],
   },
 ];
@@ -62,4 +105,16 @@ export function getRitual(key: RitualKey): RitualConfig {
   const ritual = RITUALS.find((r) => r.key === key);
   if (!ritual) throw new Error(`Ritual desconocido: ${key}`);
   return ritual;
+}
+
+function dayOfYear(d: Date): number {
+  const start = new Date(d.getFullYear(), 0, 0);
+  const diff = d.getTime() - start.getTime();
+  return Math.floor(diff / 86400000);
+}
+
+export function dailyTip(ritual: RitualConfig): string {
+  if (ritual.tips.length === 0) return "";
+  const idx = dayOfYear(new Date()) % ritual.tips.length;
+  return ritual.tips[idx];
 }

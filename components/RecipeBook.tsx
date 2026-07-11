@@ -10,22 +10,28 @@ import {
   toggleRecipeProbada,
 } from "@/lib/storage";
 import { DEFAULT_RECIPES, SUGGESTED_RECIPES } from "@/lib/recipes-seed";
-import { Recipe, Visibility } from "@/lib/types";
+import { Recipe } from "@/lib/types";
 import { useProfile } from "@/lib/profile-context";
-import { VisibilityToggle } from "@/components/VisibilityToggle";
+
+function youtubeEmbedUrl(url: string): string | null {
+  const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/);
+  return match ? `https://www.youtube.com/embed/${match[1]}` : null;
+}
 
 function RecipeCard({ recipe, onChange }: { recipe: Recipe; onChange: () => void }) {
   const { profileId } = useProfile();
   const [open, setOpen] = useState(false);
+  const embedUrl = recipe.videoUrl ? youtubeEmbedUrl(recipe.videoUrl) : null;
 
   return (
-    <div className="rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+    <div className="overflow-hidden rounded-2xl bg-white shadow-sm dark:bg-zinc-900">
+      {recipe.imagenUrl && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={recipe.imagenUrl} alt={recipe.nombre} className="h-36 w-full object-cover" />
+      )}
       <button onClick={() => setOpen((o) => !o)} className="flex w-full items-center justify-between px-4 py-3 text-left">
-        <span className="flex items-center gap-2">
-          <span className={recipe.probada ? "text-zinc-800 dark:text-zinc-100" : "text-zinc-500 dark:text-zinc-400"}>
-            {recipe.nombre}
-          </span>
-          {recipe.visibility === "private" && <span className="text-xs">🔒</span>}
+        <span className={recipe.probada ? "text-zinc-800 dark:text-zinc-100" : "text-zinc-500 dark:text-zinc-400"}>
+          {recipe.nombre}
         </span>
         <span className="flex items-center gap-3">
           <span
@@ -58,7 +64,17 @@ function RecipeCard({ recipe, onChange }: { recipe: Recipe; onChange: () => void
           <p className="font-medium text-zinc-600 dark:text-zinc-300">Ingredientes</p>
           <p className="mt-1 text-zinc-600 dark:text-zinc-400">{recipe.ingredientes}</p>
           <p className="mt-3 font-medium text-zinc-600 dark:text-zinc-300">Preparación</p>
-          <p className="mt-1 text-zinc-600 dark:text-zinc-400">{recipe.instrucciones}</p>
+          <p className="mt-1 whitespace-pre-line text-zinc-600 dark:text-zinc-400">{recipe.instrucciones}</p>
+          {embedUrl && (
+            <div className="mt-3 aspect-video overflow-hidden rounded-xl">
+              <iframe
+                src={embedUrl}
+                title={`Vídeo de ${recipe.nombre}`}
+                className="h-full w-full"
+                allowFullScreen
+              />
+            </div>
+          )}
           <p className="mt-3 text-xs text-zinc-400">{recipe.probada ? "✓ Ya la habéis probado" : "Aún sin probar"}</p>
           {recipe.ownerId === profileId && (
             <button
@@ -82,7 +98,8 @@ export function RecipeBook() {
   const [nombre, setNombre] = useState("");
   const [ingredientes, setIngredientes] = useState("");
   const [instrucciones, setInstrucciones] = useState("");
-  const [visibility, setVisibility] = useState<Visibility>("shared");
+  const [imagenUrl, setImagenUrl] = useState("");
+  const [videoUrl, setVideoUrl] = useState("");
 
   const seeded = useRef(false);
 
@@ -124,10 +141,23 @@ export function RecipeBook() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!nombre.trim() || !profileId) return;
-    await addRecipe(nombre.trim(), ingredientes.trim(), instrucciones.trim(), profileId, visibility);
+    // Las recetas siempre son compartidas: Viviana tiene que ver todo lo que se añada.
+    await addRecipe(
+      nombre.trim(),
+      ingredientes.trim(),
+      instrucciones.trim(),
+      profileId,
+      "shared",
+      "active",
+      false,
+      imagenUrl.trim() || undefined,
+      videoUrl.trim() || undefined
+    );
     setNombre("");
     setIngredientes("");
     setInstrucciones("");
+    setImagenUrl("");
+    setVideoUrl("");
     setShowForm(false);
     refresh();
   };
@@ -155,28 +185,41 @@ export function RecipeBook() {
             value={nombre}
             onChange={(e) => setNombre(e.target.value)}
             placeholder="Nombre del plato"
-            className="rounded-xl border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+            className="rounded-xl border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-zinc-900 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:focus:border-zinc-100"
           />
           <textarea
             value={ingredientes}
             onChange={(e) => setIngredientes(e.target.value)}
             placeholder="Ingredientes"
             rows={2}
-            className="rounded-xl border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+            className="rounded-xl border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-zinc-900 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:focus:border-zinc-100"
           />
           <textarea
             value={instrucciones}
             onChange={(e) => setInstrucciones(e.target.value)}
-            placeholder="Preparación"
+            placeholder="Preparación paso a paso"
             rows={3}
-            className="rounded-xl border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+            className="rounded-xl border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-zinc-900 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:focus:border-zinc-100"
           />
-          <div className="flex items-center justify-between gap-2">
-            <VisibilityToggle value={visibility} onChange={setVisibility} />
-            <button type="submit" className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-medium text-white">
-              Guardar
-            </button>
-          </div>
+          <input
+            value={imagenUrl}
+            onChange={(e) => setImagenUrl(e.target.value)}
+            placeholder="Enlace a una foto del plato (opcional)"
+            className="rounded-xl border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-zinc-900 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:focus:border-zinc-100"
+          />
+          <input
+            value={videoUrl}
+            onChange={(e) => setVideoUrl(e.target.value)}
+            placeholder="Enlace a un vídeo de YouTube (opcional)"
+            className="rounded-xl border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-zinc-900 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:focus:border-zinc-100"
+          />
+          <p className="text-xs text-zinc-400">La receta la verá también Viviana — aquí no hay opción de privado.</p>
+          <button
+            type="submit"
+            className="mt-1 rounded-xl bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-700 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
+          >
+            Guardar
+          </button>
         </form>
       )}
 

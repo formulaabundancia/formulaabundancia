@@ -462,7 +462,9 @@ function mapListItem(r: Record<string, unknown>): ListItem {
     blockKey: r.block_key as string,
     titulo: r.titulo as string,
     hecho: r.hecho as boolean,
+    hechoDate: (r.hecho_date as string) ?? null,
     asignadoA: (r.asignado_a as string) ?? null,
+    categoria: (r.categoria as string) ?? null,
   };
 }
 
@@ -476,15 +478,30 @@ export async function addListItem(
   titulo: string,
   asignadoA: ProfileId | null,
   profileId: ProfileId,
-  visibility: Visibility
+  visibility: Visibility,
+  categoria: string | null = null
 ) {
-  await supabase
-    .from("lists")
-    .insert({ owner_id: profileId, visibility, block_key: blockKey, titulo, hecho: false, asignado_a: asignadoA });
+  await supabase.from("lists").insert({
+    owner_id: profileId,
+    visibility,
+    block_key: blockKey,
+    titulo,
+    hecho: false,
+    asignado_a: asignadoA,
+    categoria,
+  });
 }
 
-export async function toggleListItem(id: string, currentHecho: boolean) {
-  await supabase.from("lists").update({ hecho: !currentHecho }).eq("id", id);
+export async function toggleListItem(id: string, currentHecho: boolean, dailyReset = false) {
+  if (dailyReset) {
+    const willBeDone = !currentHecho;
+    await supabase
+      .from("lists")
+      .update({ hecho: willBeDone, hecho_date: willBeDone ? todayStr() : null })
+      .eq("id", id);
+  } else {
+    await supabase.from("lists").update({ hecho: !currentHecho }).eq("id", id);
+  }
 }
 
 export async function deleteListItem(id: string) {
@@ -669,6 +686,8 @@ function mapRecipe(r: Record<string, unknown>): Recipe {
     favorita: r.favorita as boolean,
     probada: r.probada as boolean,
     status: r.status as Recipe["status"],
+    imagenUrl: (r.imagen_url as string) || undefined,
+    videoUrl: (r.video_url as string) || undefined,
   };
 }
 
@@ -685,11 +704,22 @@ export async function addRecipe(
   profileId: ProfileId,
   visibility: Visibility,
   status: Recipe["status"] = "active",
-  favorita = false
+  favorita = false,
+  imagenUrl?: string,
+  videoUrl?: string
 ) {
-  const { error } = await supabase
-    .from("recipes")
-    .insert({ owner_id: profileId, visibility, nombre, ingredientes, instrucciones, favorita, probada: false, status });
+  const { error } = await supabase.from("recipes").insert({
+    owner_id: profileId,
+    visibility,
+    nombre,
+    ingredientes,
+    instrucciones,
+    favorita,
+    probada: false,
+    status,
+    imagen_url: imagenUrl || null,
+    video_url: videoUrl || null,
+  });
   if (error) throw new Error(error.message);
 }
 

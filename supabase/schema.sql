@@ -117,7 +117,9 @@ create table if not exists lists (
   block_key text not null,
   titulo text not null,
   hecho boolean not null default false,
-  asignado_a uuid references profiles(id)
+  hecho_date date,
+  asignado_a uuid references profiles(id),
+  categoria text
 );
 
 create table if not exists amount_items (
@@ -198,7 +200,9 @@ create table if not exists recipes (
   instrucciones text not null default '',
   favorita boolean not null default false,
   probada boolean not null default false,
-  status text not null default 'active' check (status in ('active', 'suggested', 'declined'))
+  status text not null default 'active' check (status in ('active', 'suggested', 'declined')),
+  imagen_url text,
+  video_url text
 );
 
 alter table recipes enable row level security;

@@ -15,7 +15,14 @@ export default function TareasPage() {
             <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">Tareas de la casa</h1>
           </div>
           <div className="mt-5">
-            <ListBlock blockKey="tareas-casa" title="Pendientes" allowAssign itemLabel="Nueva tarea" />
+            <ListBlock
+              blockKey="tareas-casa"
+              title="Pendientes"
+              allowAssign
+              allowCategory
+              dailyReset
+              itemLabel="Nueva tarea"
+            />
           </div>
         </div>
       </main>
