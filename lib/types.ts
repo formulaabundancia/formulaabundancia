@@ -14,6 +14,12 @@ export const PROFILE_DISPLAY_NAMES: Record<ProfileName, string> = {
   dylan: "Dylan",
 };
 
+export const PROFILE_AVATAR_COLOR: Record<ProfileName, string> = {
+  jose: "bg-sky-500",
+  viviana: "bg-rose-500",
+  dylan: "bg-orange-500",
+};
+
 export type Visibility = "private" | "shared";
 
 export type Area = "salud" | "dinero" | "amor";

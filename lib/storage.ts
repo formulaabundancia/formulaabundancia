@@ -59,6 +59,27 @@ export async function setHabitStatus(key: HabitKey, status: HabitStatus): Promis
   await supabase.from("habits").update({ status }).eq("key", key);
 }
 
+function slugify(label: string): string {
+  return label
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "")
+    .slice(0, 40);
+}
+
+export async function addHabit(label: string, area: string, dimension: string): Promise<void> {
+  const base = slugify(label) || "habito";
+  let key = base;
+  let n = 1;
+  while (await getHabit(key)) {
+    key = `${base}_${++n}`;
+  }
+  const { error } = await supabase.from("habits").insert({ key, label, area, dimension, status: "active" });
+  if (error) throw new Error(error.message);
+}
+
 // ---- Habit logs ----
 
 export async function getHabitLog(habitKey: HabitKey, profileId: ProfileId, date: string): Promise<boolean> {

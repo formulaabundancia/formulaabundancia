@@ -19,6 +19,13 @@ import {
 } from "@/lib/storage";
 
 const RITUAL_STEP_KEYS = new Set(RITUALS.flatMap((r) => r.steps));
+const DAY_LETTERS = ["D", "L", "M", "X", "J", "V", "S"];
+
+function dayLetter(dateStr: string): string {
+  return DAY_LETTERS[new Date(`${dateStr}T00:00:00`).getDay()];
+}
+
+const XP_PER_LEVEL = 100;
 
 function ProfileStatsCard({ profile, bestStreak }: { profile: Profile; bestStreak: number }) {
   const [xp, setXp] = useState(0);
@@ -29,18 +36,37 @@ function ProfileStatsCard({ profile, bestStreak }: { profile: Profile; bestStrea
     getTodayProgress(profile.id, RITUAL_STEP_KEYS, RITUALS.length).then(setToday);
   }, [profile.id]);
 
+  const level = Math.floor(xp / XP_PER_LEVEL) + 1;
+  const xpIntoLevel = xp % XP_PER_LEVEL;
+
   return (
-    <div className="flex items-center gap-4 rounded-3xl bg-white p-4 shadow-sm dark:bg-zinc-900">
-      <ProgressRing value={today.done} total={today.total} size={72} strokeWidth={7} sublabel="hoy" />
-      <div>
-        <p className="font-medium text-zinc-800 dark:text-zinc-100">{PROFILE_DISPLAY_NAMES[profile.name]}</p>
-        <p className="mt-1 text-2xl font-bold text-zinc-900 dark:text-zinc-50">{xp} XP</p>
-        {bestStreak > 0 && (
-          <p className="mt-0.5 flex items-center gap-1 text-xs font-medium text-orange-500">
-            <FlameIcon className="h-3.5 w-3.5" />
-            {bestStreak} {bestStreak === 1 ? "día" : "días"}
-          </p>
-        )}
+    <div className="rounded-3xl bg-white p-4 shadow-sm dark:bg-zinc-900">
+      <div className="flex items-center gap-4">
+        <ProgressRing value={today.done} total={today.total} size={72} strokeWidth={7} sublabel="hoy" />
+        <div>
+          <p className="font-medium text-zinc-800 dark:text-zinc-100">{PROFILE_DISPLAY_NAMES[profile.name]}</p>
+          <p className="mt-1 text-2xl font-bold text-zinc-900 dark:text-zinc-50">{xp} XP</p>
+          {bestStreak > 0 && (
+            <p className="mt-0.5 flex items-center gap-1 text-xs font-medium text-orange-500">
+              <FlameIcon className="h-3.5 w-3.5" />
+              {bestStreak} {bestStreak === 1 ? "día" : "días"}
+            </p>
+          )}
+        </div>
+      </div>
+      <div className="mt-3">
+        <div className="flex items-center justify-between text-[11px] font-medium text-zinc-500 dark:text-zinc-400">
+          <span>Nivel {level}</span>
+          <span>
+            {xpIntoLevel}/{XP_PER_LEVEL}
+          </span>
+        </div>
+        <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800">
+          <div
+            className="h-full rounded-full bg-indigo-500 transition-all duration-700 dark:bg-indigo-400"
+            style={{ width: `${(xpIntoLevel / XP_PER_LEVEL) * 100}%` }}
+          />
+        </div>
       </div>
     </div>
   );
@@ -191,6 +217,13 @@ export default function EstadisticasPage() {
                           style={{ height: `${(d.count / max) * 100}%`, minHeight: d.count > 0 ? 4 : 2 }}
                           title={`${d.date}: ${d.count}`}
                         />
+                      ))}
+                    </div>
+                    <div className="mt-1 flex gap-1.5">
+                      {week.map((d) => (
+                        <span key={d.date} className="flex-1 text-center text-[10px] text-zinc-400 dark:text-zinc-500">
+                          {dayLetter(d.date)}
+                        </span>
                       ))}
                     </div>
                   </div>
