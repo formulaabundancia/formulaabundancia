@@ -618,7 +618,8 @@ function mapRecipe(r: Record<string, unknown>): Recipe {
 }
 
 export async function getRecipes(status: Recipe["status"] = "active"): Promise<Recipe[]> {
-  const { data } = await supabase.from("recipes").select("*").eq("status", status).order("nombre");
+  const { data, error } = await supabase.from("recipes").select("*").eq("status", status).order("nombre");
+  if (error) console.error("No se pudo leer 'recipes' — ¿está la tabla al día en Supabase?", error.message);
   return (data ?? []).map(mapRecipe);
 }
 
@@ -631,9 +632,10 @@ export async function addRecipe(
   status: Recipe["status"] = "active",
   favorita = false
 ) {
-  await supabase
+  const { error } = await supabase
     .from("recipes")
     .insert({ owner_id: profileId, visibility, nombre, ingredientes, instrucciones, favorita, probada: false, status });
+  if (error) throw new Error(error.message);
 }
 
 export async function toggleRecipeFavorita(id: string, current: boolean) {

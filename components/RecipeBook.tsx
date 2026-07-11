@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   addRecipe,
   deleteRecipe,
@@ -84,6 +84,8 @@ export function RecipeBook() {
   const [instrucciones, setInstrucciones] = useState("");
   const [visibility, setVisibility] = useState<Visibility>("shared");
 
+  const seeded = useRef(false);
+
   const refresh = () => {
     getRecipes("active").then(setRecipes);
     getRecipes("suggested").then(setSuggestions);
@@ -95,29 +97,29 @@ export function RecipeBook() {
   }, []);
 
   // Siembra la primera vez: recetas activas de ejemplo + sugerencias.
+  // El guard `seeded` evita que esto se repita en bucle si el insert falla
+  // (p. ej. porque la tabla de Supabase todavía no está lista) — sin él,
+  // cada refresh() que sigue devolviendo [] volvería a disparar el efecto.
   useEffect(() => {
-    if (recipes !== null && recipes.length === 0 && profileId) {
+    if (seeded.current) return;
+    if (recipes !== null && suggestions !== null && recipes.length === 0 && suggestions.length === 0 && profileId) {
+      seeded.current = true;
       (async () => {
-        for (const r of DEFAULT_RECIPES) {
-          await addRecipe(r.nombre, r.ingredientes, r.instrucciones, profileId, "shared", "active", r.favorita);
+        try {
+          for (const r of DEFAULT_RECIPES) {
+            await addRecipe(r.nombre, r.ingredientes, r.instrucciones, profileId, "shared", "active", r.favorita);
+          }
+          for (const r of SUGGESTED_RECIPES) {
+            await addRecipe(r.nombre, r.ingredientes, r.instrucciones, profileId, "shared", "suggested");
+          }
+          refresh();
+        } catch (err) {
+          console.error("No se pudieron sembrar las recetas — revisa que la tabla 'recipes' esté al día", err);
         }
-        refresh();
       })();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [recipes, profileId]);
-
-  useEffect(() => {
-    if (suggestions !== null && suggestions.length === 0 && recipes !== null && recipes.length > 0 && profileId) {
-      (async () => {
-        for (const r of SUGGESTED_RECIPES) {
-          await addRecipe(r.nombre, r.ingredientes, r.instrucciones, profileId, "shared", "suggested");
-        }
-        refresh();
-      })();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [suggestions, recipes, profileId]);
+  }, [recipes, suggestions, profileId]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
