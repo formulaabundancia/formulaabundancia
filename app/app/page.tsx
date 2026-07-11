@@ -25,6 +25,7 @@ const ADULT_LINKS = [
   { href: "/app/dylan", label: "💙 Dylan" },
   { href: "/app/tareas", label: "🏠 Tareas de la casa" },
   { href: "/app/red-de-vida", label: "🌐 Red de la vida" },
+  { href: "/app/respiracion", label: "🫁 Respiración" },
   { href: "/app/libreria", label: "📚 Librería de hábitos" },
   { href: "/app/estadisticas", label: "📊 Estadísticas" },
 ];
@@ -33,6 +34,7 @@ const CHILD_LINKS = [
   { href: "/app/dylan", label: "💙 Mi sección" },
   { href: "/app/tareas", label: "🏠 Tareas de la casa" },
   { href: "/app/red-de-vida", label: "🌐 Red de la vida" },
+  { href: "/app/respiracion", label: "🫁 Respiración" },
 ];
 
 export default function HomePage() {
