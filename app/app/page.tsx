@@ -1,10 +1,43 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Header } from "@/components/Header";
+import { ProgressRing } from "@/components/ProgressRing";
+import { WeekStrip } from "@/components/WeekStrip";
 import { AREAS, DIMENSIONS, SECTIONS } from "@/lib/sections";
-import { Area } from "@/lib/types";
+import { Area, PROFILE_DISPLAY_NAMES } from "@/lib/types";
 import { useProfile } from "@/lib/profile-context";
+import { RITUALS } from "@/lib/rituals";
+import { getTodayProgress } from "@/lib/storage";
+
+const RITUAL_STEP_KEYS = new Set(RITUALS.flatMap((r) => r.steps));
+
+function TodayHero() {
+  const { profile, profileId } = useProfile();
+  const [today, setToday] = useState({ done: 0, total: 0 });
+
+  useEffect(() => {
+    if (profileId) getTodayProgress(profileId, RITUAL_STEP_KEYS, RITUALS.length).then(setToday);
+  }, [profileId]);
+
+  return (
+    <div className="mb-6 rounded-3xl bg-zinc-100 p-5 dark:bg-zinc-900">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Meta diaria</p>
+          <p className="mt-1 text-lg font-semibold text-zinc-900 dark:text-zinc-50">
+            {profile ? `Hola, ${PROFILE_DISPLAY_NAMES[profile.name]}` : "Hola"}
+          </p>
+        </div>
+        <ProgressRing value={today.done} total={today.total} size={64} strokeWidth={6} sublabel="hoy" />
+      </div>
+      <div className="mt-5">
+        <WeekStrip />
+      </div>
+    </div>
+  );
+}
 
 const AREA_STYLES: Record<Area, { card: string; badge: string; iconBg: string }> = {
   salud: {
@@ -50,6 +83,7 @@ export default function HomePage() {
       <Header />
       <main className="flex-1 px-5 py-6">
         <div className="mx-auto max-w-2xl">
+          {!isChild && <TodayHero />}
           <div className="mb-8 grid grid-cols-2 gap-3">
             {(isChild ? CHILD_LINKS : ADULT_LINKS).map((link) => (
               <Link
