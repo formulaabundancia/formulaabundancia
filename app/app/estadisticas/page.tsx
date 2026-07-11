@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Header } from "@/components/Header";
 import { ProgressRing } from "@/components/ProgressRing";
+import { ChartIcon } from "@/components/icons";
 import { RITUALS } from "@/lib/rituals";
 import { Habit, PROFILE_DISPLAY_NAMES, Profile } from "@/lib/types";
 import { useProfile } from "@/lib/profile-context";
@@ -88,7 +89,10 @@ export default function EstadisticasPage() {
       <Header backHref="/app" />
       <main className="flex-1 px-5 py-6">
         <div className="mx-auto max-w-2xl">
-          <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">📊 Estadísticas</h1>
+          <div className="flex items-center gap-2">
+            <ChartIcon className="h-5 w-5 text-zinc-500 dark:text-zinc-400" />
+            <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">Estadísticas</h1>
+          </div>
 
           <div className="mt-6 grid grid-cols-2 gap-4">
             {adultProfiles.map((p) => (

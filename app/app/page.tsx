@@ -6,8 +6,20 @@ import { Header } from "@/components/Header";
 import { ProgressRing } from "@/components/ProgressRing";
 import { WeekStrip } from "@/components/WeekStrip";
 import { RitualBlock } from "@/components/RitualBlock";
+import {
+  BrainIcon,
+  CoinIcon,
+  FeatherIcon,
+  DumbbellIcon,
+  GlobeIcon,
+  HeartIcon,
+  LeafIcon,
+  SparklesIcon,
+  UtensilsIcon,
+  WindIcon,
+} from "@/components/icons";
 import { AREAS, DIMENSIONS, SECTIONS } from "@/lib/sections";
-import { Area, PROFILE_DISPLAY_NAMES } from "@/lib/types";
+import { Area, Dimension, PROFILE_DISPLAY_NAMES } from "@/lib/types";
 import { useProfile } from "@/lib/profile-context";
 import { RITUALS } from "@/lib/rituals";
 import { getTodayProgress } from "@/lib/storage";
@@ -44,55 +56,33 @@ function TodayHero() {
   );
 }
 
-const AREA_STYLES: Record<Area, { card: string; iconBg: string }> = {
-  salud: {
-    card: "bg-emerald-50 dark:bg-emerald-950/30",
-    iconBg: "bg-emerald-200/70 dark:bg-emerald-900/60",
-  },
-  dinero: {
-    card: "bg-amber-50 dark:bg-amber-950/30",
-    iconBg: "bg-amber-200/70 dark:bg-amber-900/60",
-  },
-  amor: {
-    card: "bg-rose-50 dark:bg-rose-950/30",
-    iconBg: "bg-rose-200/70 dark:bg-rose-900/60",
-  },
+const AREA_ICONS: Record<Area, React.ComponentType<{ className?: string }>> = {
+  salud: LeafIcon,
+  dinero: CoinIcon,
+  amor: HeartIcon,
+};
+
+const AREA_ACCENT: Record<Area, string> = {
+  salud: "text-emerald-600 dark:text-emerald-400",
+  dinero: "text-amber-600 dark:text-amber-400",
+  amor: "text-rose-600 dark:text-rose-400",
+};
+
+const DIMENSION_ICONS: Record<Dimension, React.ComponentType<{ className?: string }>> = {
+  cuerpo: DumbbellIcon,
+  alma: SparklesIcon,
+  mente: BrainIcon,
+  espiritu: FeatherIcon,
 };
 
 const ADULT_LINKS = [
-  { href: "/app/dylan", icon: "💙", label: "Dylan", card: "bg-sky-50 dark:bg-sky-950/30", iconBg: "bg-sky-200/70 dark:bg-sky-900/60" },
-  {
-    href: "/app/red-de-vida",
-    icon: "🌐",
-    label: "Red de la vida",
-    card: "bg-violet-50 dark:bg-violet-950/30",
-    iconBg: "bg-violet-200/70 dark:bg-violet-900/60",
-  },
-  {
-    href: "/app/respiracion",
-    icon: "🫁",
-    label: "Respiración",
-    card: "bg-cyan-50 dark:bg-cyan-950/30",
-    iconBg: "bg-cyan-200/70 dark:bg-cyan-900/60",
-  },
-  {
-    href: "/app/recetas",
-    icon: "🍽️",
-    label: "Recetas",
-    card: "bg-orange-50 dark:bg-orange-950/30",
-    iconBg: "bg-orange-200/70 dark:bg-orange-900/60",
-  },
+  { href: "/app/dylan", Icon: HeartIcon, label: "Dylan", accent: "text-sky-600 dark:text-sky-400" },
+  { href: "/app/red-de-vida", Icon: GlobeIcon, label: "Red de la vida", accent: "text-violet-600 dark:text-violet-400" },
+  { href: "/app/respiracion", Icon: WindIcon, label: "Respiración", accent: "text-cyan-600 dark:text-cyan-400" },
+  { href: "/app/recetas", Icon: UtensilsIcon, label: "Recetas", accent: "text-orange-600 dark:text-orange-400" },
 ];
 
-const CHILD_LINKS = [
-  {
-    href: "/app/respiracion",
-    icon: "🫁",
-    label: "Respiración",
-    card: "bg-cyan-50 dark:bg-cyan-950/30",
-    iconBg: "bg-cyan-200/70 dark:bg-cyan-900/60",
-  },
-];
+const CHILD_LINKS = [{ href: "/app/respiracion", Icon: WindIcon, label: "Respiración", accent: "text-cyan-600 dark:text-cyan-400" }];
 
 export default function HomePage() {
   const { profile } = useProfile();
@@ -120,10 +110,10 @@ export default function HomePage() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`flex flex-col gap-3 rounded-3xl p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${link.card}`}
+                className="flex flex-col gap-3 rounded-3xl bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:bg-zinc-900"
               >
-                <span className={`flex h-11 w-11 items-center justify-center rounded-full text-xl ${link.iconBg}`}>
-                  {link.icon}
+                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800">
+                  <link.Icon className={`h-5 w-5 ${link.accent}`} />
                 </span>
                 <span className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">{link.label}</span>
               </Link>
@@ -132,13 +122,12 @@ export default function HomePage() {
 
           {!isChild &&
             AREAS.map((area) => {
-              const styles = AREA_STYLES[area.id];
+              const AreaIcon = AREA_ICONS[area.id];
+              const accent = AREA_ACCENT[area.id];
               return (
                 <div key={area.id} className="mb-8">
                   <div className="mb-3 flex items-center gap-2">
-                    <span className={`flex h-7 w-7 items-center justify-center rounded-full text-sm ${styles.iconBg}`}>
-                      {area.icon}
-                    </span>
+                    <AreaIcon className={`h-4 w-4 ${accent}`} />
                     <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
                       {area.label}
                     </h2>
@@ -147,17 +136,18 @@ export default function HomePage() {
                     {DIMENSIONS.map((dim) => {
                       const section = SECTIONS.find((s) => s.area === area.id && s.dimension === dim.id);
                       if (!section) return null;
+                      const DimIcon = DIMENSION_ICONS[dim.id];
                       return (
                         <Link
                           key={dim.id}
                           href={`/app/${area.id}/${dim.id}`}
-                          className={`flex flex-col gap-2 rounded-3xl p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${styles.card}`}
+                          className="flex flex-col gap-2 rounded-3xl bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:bg-zinc-900"
                         >
-                          <span className={`flex h-10 w-10 items-center justify-center rounded-full text-lg ${styles.iconBg}`}>
-                            {dim.icon}
+                          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800">
+                            <DimIcon className={`h-5 w-5 ${accent}`} />
                           </span>
                           <span className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">{dim.label}</span>
-                          <p className="text-xs leading-snug text-zinc-600 dark:text-zinc-400">{section.subtitle}</p>
+                          <p className="text-xs leading-snug text-zinc-500 dark:text-zinc-400">{section.subtitle}</p>
                         </Link>
                       );
                     })}

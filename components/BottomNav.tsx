@@ -3,19 +3,20 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useProfile } from "@/lib/profile-context";
+import { BookIcon, ChartIcon, ChecklistIcon, GlobeIcon, HeartIcon, HomeIcon } from "@/components/icons";
 
 const ADULT_ITEMS = [
-  { href: "/app", icon: "🏡", label: "Inicio" },
-  { href: "/app/estadisticas", icon: "📊", label: "Progreso" },
-  { href: "/app/libreria", icon: "📚", label: "Librería" },
-  { href: "/app/tareas", icon: "🏠", label: "Tareas" },
+  { href: "/app", Icon: HomeIcon, label: "Inicio" },
+  { href: "/app/estadisticas", Icon: ChartIcon, label: "Progreso" },
+  { href: "/app/libreria", Icon: BookIcon, label: "Librería" },
+  { href: "/app/tareas", Icon: ChecklistIcon, label: "Tareas" },
 ];
 
 const CHILD_ITEMS = [
-  { href: "/app", icon: "🏡", label: "Inicio" },
-  { href: "/app/dylan", icon: "💙", label: "Mi sección" },
-  { href: "/app/tareas", icon: "🏠", label: "Tareas" },
-  { href: "/app/red-de-vida", icon: "🌐", label: "Familia" },
+  { href: "/app", Icon: HomeIcon, label: "Inicio" },
+  { href: "/app/dylan", Icon: HeartIcon, label: "Mi sección" },
+  { href: "/app/tareas", Icon: ChecklistIcon, label: "Tareas" },
+  { href: "/app/red-de-vida", Icon: GlobeIcon, label: "Familia" },
 ];
 
 export function BottomNav() {
@@ -38,7 +39,7 @@ export function BottomNav() {
                 active ? "bg-zinc-900 dark:bg-white" : ""
               }`}
             >
-              <span className={`text-lg transition ${active ? "" : "opacity-50"}`}>{item.icon}</span>
+              <item.Icon className={`h-5 w-5 transition ${active ? "text-white dark:text-zinc-900" : "text-zinc-400 dark:text-zinc-500"}`} />
               <span className={active ? "text-white dark:text-zinc-900" : "text-zinc-400 dark:text-zinc-500"}>
                 {item.label}
               </span>
