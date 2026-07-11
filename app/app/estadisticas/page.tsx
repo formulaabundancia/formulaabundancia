@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Header } from "@/components/Header";
 import { ProgressRing } from "@/components/ProgressRing";
-import { ChartIcon } from "@/components/icons";
+import { ChartIcon, FlameIcon, TrophyIcon } from "@/components/icons";
 import { RITUALS } from "@/lib/rituals";
 import { Habit, PROFILE_DISPLAY_NAMES, Profile } from "@/lib/types";
 import { useProfile } from "@/lib/profile-context";
@@ -20,7 +20,7 @@ import {
 
 const RITUAL_STEP_KEYS = new Set(RITUALS.flatMap((r) => r.steps));
 
-function ProfileStatsCard({ profile }: { profile: Profile }) {
+function ProfileStatsCard({ profile, bestStreak }: { profile: Profile; bestStreak: number }) {
   const [xp, setXp] = useState(0);
   const [today, setToday] = useState({ done: 0, total: 0 });
 
@@ -34,7 +34,13 @@ function ProfileStatsCard({ profile }: { profile: Profile }) {
       <ProgressRing value={today.done} total={today.total} size={72} strokeWidth={7} sublabel="hoy" />
       <div>
         <p className="font-medium text-zinc-800 dark:text-zinc-100">{PROFILE_DISPLAY_NAMES[profile.name]}</p>
-        <p className="mt-1 text-2xl font-semibold text-zinc-900 dark:text-zinc-50">{xp} XP</p>
+        <p className="mt-1 text-2xl font-bold text-zinc-900 dark:text-zinc-50">{xp} XP</p>
+        {bestStreak > 0 && (
+          <p className="mt-0.5 flex items-center gap-1 text-xs font-medium text-orange-500">
+            <FlameIcon className="h-3.5 w-3.5" />
+            {bestStreak} {bestStreak === 1 ? "día" : "días"}
+          </p>
+        )}
       </div>
     </div>
   );
@@ -84,6 +90,9 @@ export default function EstadisticasPage() {
     })();
   }, [looseHabits, adultProfiles.map((p) => p.id).join(",")]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const bestStreakFor = (profileId: string) =>
+    Math.max(0, ...looseHabits.map((h) => streaks[`${h.key}:${profileId}`] ?? 0));
+
   return (
     <>
       <Header backHref="/app" />
@@ -96,67 +105,89 @@ export default function EstadisticasPage() {
 
           <div className="mt-6 grid grid-cols-2 gap-4">
             {adultProfiles.map((p) => (
-              <ProfileStatsCard key={p.id} profile={p} />
+              <ProfileStatsCard key={p.id} profile={p} bestStreak={bestStreakFor(p.id)} />
             ))}
           </div>
 
-          <div className="mt-8 rounded-3xl bg-white p-5 shadow-sm dark:bg-zinc-900">
-            <h2 className="font-medium text-zinc-800 dark:text-zinc-100">Rituales de hoy</h2>
-            <div className="mt-4 flex flex-col gap-3">
-              {RITUALS.map((r) => (
-                <div key={r.key}>
-                  <p className="text-sm text-zinc-600 dark:text-zinc-300">{r.title}</p>
-                  <div className="mt-1 flex gap-4">
-                    {adultProfiles.map((p) => {
-                      const progress = ritualProgress[`${r.key}:${p.id}`] ?? { done: 0, total: r.steps.length };
-                      return (
-                        <span key={p.id} className="text-xs text-zinc-500 dark:text-zinc-400">
-                          {PROFILE_DISPLAY_NAMES[p.name]}: {progress.done}/{progress.total}
+          <h2 className="mb-3 mt-8 text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+            Rituales de hoy
+          </h2>
+          <div className="grid grid-cols-2 gap-3">
+            {RITUALS.map((r) => (
+              <div key={r.key} className="rounded-3xl bg-white p-4 shadow-sm dark:bg-zinc-900">
+                <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">{r.title}</p>
+                <div className="mt-3 flex flex-col gap-3">
+                  {adultProfiles.map((p) => {
+                    const progress = ritualProgress[`${r.key}:${p.id}`] ?? { done: 0, total: r.steps.length };
+                    return (
+                      <div key={p.id} className="flex items-center gap-2.5">
+                        <ProgressRing value={progress.done} total={progress.total} size={36} strokeWidth={4} />
+                        <span className="text-xs font-medium text-zinc-600 dark:text-zinc-300">
+                          {PROFILE_DISPLAY_NAMES[p.name]}
                         </span>
-                      );
-                    })}
-                  </div>
+                      </div>
+                    );
+                  })}
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
 
-          <div className="mt-6 rounded-3xl bg-white p-5 shadow-sm dark:bg-zinc-900">
-            <h2 className="font-medium text-zinc-800 dark:text-zinc-100">Rachas de hábitos sueltos</h2>
-            <div className="mt-4 flex flex-col gap-3">
-              {looseHabits.map((h) => (
-                <div key={h.key}>
-                  <p className="text-sm text-zinc-600 dark:text-zinc-300">{h.label}</p>
-                  <div className="mt-1 flex gap-4">
-                    {adultProfiles.map((p) => {
-                      const streak = streaks[`${h.key}:${p.id}`] ?? 0;
-                      const badge = badgeForStreak(streak);
-                      return (
-                        <span key={p.id} className="text-xs text-zinc-500 dark:text-zinc-400">
-                          {PROFILE_DISPLAY_NAMES[p.name]}: 🔥 {streak} {badge ?? ""}
+          <h2 className="mb-3 mt-8 text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+            Rachas de hábitos
+          </h2>
+          <div className="flex flex-col gap-3">
+            {looseHabits.map((h) => (
+              <div key={h.key} className="rounded-3xl bg-white p-4 shadow-sm dark:bg-zinc-900">
+                <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">{h.label}</p>
+                <div className="mt-3 flex gap-6">
+                  {adultProfiles.map((p) => {
+                    const streak = streaks[`${h.key}:${p.id}`] ?? 0;
+                    const badge = badgeForStreak(streak);
+                    return (
+                      <div key={p.id} className="flex items-center gap-2">
+                        <span className={`flex h-9 w-9 items-center justify-center rounded-full ${streak > 0 ? "bg-orange-100 dark:bg-orange-950/40" : "bg-zinc-100 dark:bg-zinc-800"}`}>
+                          <FlameIcon className={`h-5 w-5 ${streak > 0 ? "text-orange-500" : "text-zinc-400 dark:text-zinc-600"}`} />
                         </span>
-                      );
-                    })}
-                  </div>
+                        <div>
+                          <p className="text-xs text-zinc-500 dark:text-zinc-400">{PROFILE_DISPLAY_NAMES[p.name]}</p>
+                          <p className="flex items-center gap-1 text-lg font-bold text-zinc-900 dark:text-zinc-50">
+                            {streak}
+                            {badge && <span className="text-sm">{badge}</span>}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
+            {looseHabits.length === 0 && (
+              <p className="text-sm text-zinc-400 dark:text-zinc-500">Aún no hay hábitos sueltos activos.</p>
+            )}
           </div>
 
-          <div className="mt-6 rounded-3xl bg-white p-5 shadow-sm dark:bg-zinc-900">
-            <h2 className="font-medium text-zinc-800 dark:text-zinc-100">Últimos 7 días</h2>
-            <div className="mt-4 flex flex-col gap-4">
+          <div className="mb-3 mt-8 flex items-center gap-2">
+            <TrophyIcon className="h-4 w-4 text-zinc-500 dark:text-zinc-400" />
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+              Últimos 7 días
+            </h2>
+          </div>
+          <div className="rounded-3xl bg-white p-5 shadow-sm dark:bg-zinc-900">
+            <div className="flex flex-col gap-5">
               {adultProfiles.map((p) => {
                 const week = weeks[p.id] ?? [];
                 const max = Math.max(1, ...week.map((d) => d.count));
                 return (
                   <div key={p.id}>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400">{PROFILE_DISPLAY_NAMES[p.name]}</p>
-                    <div className="mt-1 flex items-end gap-1.5" style={{ height: 48 }}>
+                    <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+                      {PROFILE_DISPLAY_NAMES[p.name]}
+                    </p>
+                    <div className="mt-2 flex items-end gap-1.5" style={{ height: 56 }}>
                       {week.map((d) => (
                         <div
                           key={d.date}
-                          className="flex-1 rounded-t bg-emerald-400 dark:bg-emerald-600"
+                          className="flex-1 rounded-t bg-indigo-500 dark:bg-indigo-400"
                           style={{ height: `${(d.count / max) * 100}%`, minHeight: d.count > 0 ? 4 : 2 }}
                           title={`${d.date}: ${d.count}`}
                         />

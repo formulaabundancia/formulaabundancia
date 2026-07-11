@@ -153,3 +153,21 @@ export function MoonIcon({ className }: IconProps) {
     </svg>
   );
 }
+
+export function FlameIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
+      <path d="M12 2c.6 2.4-1.8 3.6-1.8 6 0 1.2.9 2 1.9 2 1.3 0 2-1 1.9-2.2 2 1.3 3.5 3.8 3.5 6.4 0 3.6-2.9 6.3-6.5 6.3S3.5 17.8 3.5 14.2c0-3.9 2.6-6.5 4.4-8.4C9.2 4.4 10.6 3.3 12 2Z" />
+    </svg>
+  );
+}
+
+export function TrophyIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill={base} stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M7 4h10v4a5 5 0 0 1-10 0V4Z" />
+      <path d="M7 5H4.5A2.5 2.5 0 0 0 4.5 10H7M17 5h2.5A2.5 2.5 0 0 1 19.5 10H17" />
+      <path d="M12 13v3M9 20h6M9.5 20c0-2 1-2.5 2.5-3 1.5.5 2.5 1 2.5 3" />
+    </svg>
+  );
+}
