@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { addMeal, deleteMeal, getMeals } from "@/lib/storage";
-import { Meal, MealTipo, PROFILE_DISPLAY_NAMES, ProfileId, Visibility } from "@/lib/types";
+import { Meal, MealTipo, PROFILE_DISPLAY_NAMES, ProfileId } from "@/lib/types";
 import { useProfile } from "@/lib/profile-context";
-import { VisibilityToggle } from "@/components/VisibilityToggle";
 
 const TIPOS: { id: MealTipo; label: string }[] = [
   { id: "batido", label: "Batido Herbalife" },
@@ -17,7 +16,6 @@ export function MealLog() {
   const [meals, setMeals] = useState<Meal[]>([]);
   const [tipo, setTipo] = useState<MealTipo>("batido");
   const [nota, setNota] = useState("");
-  const [visibility, setVisibility] = useState<Visibility>("shared");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -33,7 +31,7 @@ export function MealLog() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!profileId) return;
-    await addMeal(profileId, tipo, nota.trim(), visibility);
+    await addMeal(profileId, tipo, nota.trim(), "shared");
     setNota("");
     refresh();
   };
@@ -67,15 +65,12 @@ export function MealLog() {
           placeholder="Nota (opcional)"
           className="rounded-xl border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-emerald-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
         />
-        <div className="flex items-center justify-between gap-2">
-          <VisibilityToggle value={visibility} onChange={setVisibility} />
-          <button
-            type="submit"
-            className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-emerald-600"
-          >
-            Registrar
-          </button>
-        </div>
+        <button
+          type="submit"
+          className="self-end rounded-xl bg-emerald-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-emerald-600"
+        >
+          Registrar
+        </button>
       </form>
 
       {meals.length > 0 && (

@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { addAmountItem, deleteAmountItem, getAmountItems } from "@/lib/storage";
-import { AmountItem, Visibility } from "@/lib/types";
+import { AmountItem } from "@/lib/types";
 import { useProfile } from "@/lib/profile-context";
-import { VisibilityToggle } from "@/components/VisibilityToggle";
 
 function formatMoney(n: number) {
   return n.toLocaleString("es-ES", { style: "currency", currency: "EUR" });
@@ -25,7 +24,6 @@ function MiniLedger({
   const [items, setItems] = useState<AmountItem[]>([]);
   const [nombre, setNombre] = useState("");
   const [monto, setMonto] = useState("");
-  const [visibility, setVisibility] = useState<Visibility>("shared");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -40,7 +38,7 @@ function MiniLedger({
     e.preventDefault();
     const value = parseFloat(monto);
     if (!nombre.trim() || Number.isNaN(value) || value <= 0 || !profileId) return;
-    await addAmountItem(blockKey, nombre.trim(), value, profileId, visibility);
+    await addAmountItem(blockKey, nombre.trim(), value, profileId, "shared");
     setNombre("");
     setMonto("");
     refresh();
@@ -72,7 +70,6 @@ function MiniLedger({
           placeholder="€"
           className="w-24 rounded-xl border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
         />
-        <VisibilityToggle value={visibility} onChange={setVisibility} />
         <button
           type="submit"
           className="rounded-xl bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-700 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"

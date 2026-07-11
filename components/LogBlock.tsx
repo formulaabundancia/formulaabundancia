@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { addLogEntry, deleteLogEntry, getLogs } from "@/lib/storage";
-import { LogEntry, PROFILE_DISPLAY_NAMES, Visibility } from "@/lib/types";
+import { LogEntry, PROFILE_DISPLAY_NAMES } from "@/lib/types";
 import { useProfile } from "@/lib/profile-context";
-import { VisibilityToggle } from "@/components/VisibilityToggle";
 
 export interface LogBlockProps {
   blockKey: string;
@@ -20,7 +19,6 @@ export function LogBlock({ blockKey, title, categorias, trackMonto, placeholder 
   const [categoria, setCategoria] = useState(categorias[0]);
   const [nota, setNota] = useState("");
   const [monto, setMonto] = useState("");
-  const [visibility, setVisibility] = useState<Visibility>("shared");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -37,7 +35,7 @@ export function LogBlock({ blockKey, title, categorias, trackMonto, placeholder 
     e.preventDefault();
     if (!profileId || !nota.trim()) return;
     const montoValue = trackMonto && monto ? parseFloat(monto) : undefined;
-    await addLogEntry(blockKey, categoria, nota.trim(), profileId, visibility, montoValue);
+    await addLogEntry(blockKey, categoria, nota.trim(), profileId, "shared", montoValue);
     setNota("");
     setMonto("");
     refresh();
@@ -85,15 +83,12 @@ export function LogBlock({ blockKey, title, categorias, trackMonto, placeholder 
             className="rounded-xl border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
           />
         )}
-        <div className="flex items-center justify-between gap-2">
-          <VisibilityToggle value={visibility} onChange={setVisibility} />
-          <button
-            type="submit"
-            className="rounded-xl bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-700 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
-          >
-            Guardar
-          </button>
-        </div>
+        <button
+          type="submit"
+          className="self-end rounded-xl bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-700 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
+        >
+          Guardar
+        </button>
       </form>
 
       {entries.length > 0 && (

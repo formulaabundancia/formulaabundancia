@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { addLifeContact, deleteLifeContact, getLifeContacts, isOverdue, markContacted } from "@/lib/storage";
-import { LifeContact, Relacion, Visibility } from "@/lib/types";
+import { LifeContact, Relacion } from "@/lib/types";
 import { useProfile } from "@/lib/profile-context";
-import { VisibilityToggle } from "@/components/VisibilityToggle";
 
 const RELACIONES: { id: Relacion; label: string }[] = [
   { id: "amigo", label: "Amigo" },
@@ -25,7 +24,6 @@ export function LifeContacts() {
   const [nombre, setNombre] = useState("");
   const [relacion, setRelacion] = useState<Relacion>("amigo");
   const [cadencia, setCadencia] = useState("14");
-  const [visibility, setVisibility] = useState<Visibility>("shared");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -39,7 +37,7 @@ export function LifeContacts() {
     e.preventDefault();
     const dias = parseInt(cadencia, 10);
     if (!nombre.trim() || Number.isNaN(dias) || dias <= 0 || !profileId) return;
-    await addLifeContact(nombre.trim(), relacion, dias, profileId, visibility);
+    await addLifeContact(nombre.trim(), relacion, dias, profileId, "shared");
     setNombre("");
     setCadencia("14");
     refresh();
@@ -81,15 +79,12 @@ export function LifeContacts() {
             className="w-28 rounded-xl border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
           />
         </div>
-        <div className="flex items-center justify-between gap-2">
-          <VisibilityToggle value={visibility} onChange={setVisibility} />
-          <button
-            type="submit"
-            className="rounded-xl bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-700 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
-          >
-            +
-          </button>
-        </div>
+        <button
+          type="submit"
+          className="self-end rounded-xl bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-700 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
+        >
+          +
+        </button>
       </form>
 
       {sorted.length > 0 && (

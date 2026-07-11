@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { addListItem, deleteListItem, getListItems, toggleListItem, todayStr } from "@/lib/storage";
-import { ListItem, PROFILE_AVATAR_COLOR, PROFILE_DISPLAY_NAMES, ProfileId, ProfileName, Visibility } from "@/lib/types";
+import { ListItem, PROFILE_AVATAR_COLOR, PROFILE_DISPLAY_NAMES, ProfileId, ProfileName } from "@/lib/types";
 import { useProfile } from "@/lib/profile-context";
-import { VisibilityToggle } from "@/components/VisibilityToggle";
 import { ProgressRing } from "@/components/ProgressRing";
 
 const DEFAULT_TAREAS: { titulo: string; categoria: string }[] = [
@@ -62,7 +61,6 @@ export function ListBlock({
   const [titulo, setTitulo] = useState("");
   const [asignadoA, setAsignadoA] = useState<ProfileId | "">("");
   const [categoria, setCategoria] = useState(CATEGORY_OPTIONS[0]);
-  const [visibility, setVisibility] = useState<Visibility>("shared");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -85,7 +83,7 @@ export function ListBlock({
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!titulo.trim() || !profileId) return;
-    await addListItem(blockKey, titulo.trim(), asignadoA || null, profileId, visibility, allowCategory ? categoria : null);
+    await addListItem(blockKey, titulo.trim(), asignadoA || null, profileId, "shared", allowCategory ? categoria : null);
     setTitulo("");
     setAsignadoA("");
     refresh();
@@ -150,7 +148,6 @@ export function ListBlock({
               ))}
             </select>
           )}
-          <VisibilityToggle value={visibility} onChange={setVisibility} />
           <button
             type="submit"
             className="rounded-xl bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-700 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"

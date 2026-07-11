@@ -10,9 +10,8 @@ import {
   getFinanceGoals,
   updateFinanceGoalAmount,
 } from "@/lib/storage";
-import { FinanceEntry, FinanceGoal, FinanceScope, FinanceTipo, PROFILE_DISPLAY_NAMES, ProfileId, Visibility } from "@/lib/types";
+import { FinanceEntry, FinanceGoal, FinanceScope, FinanceTipo, PROFILE_DISPLAY_NAMES, ProfileId } from "@/lib/types";
 import { useProfile } from "@/lib/profile-context";
-import { VisibilityToggle } from "@/components/VisibilityToggle";
 
 function formatMoney(n: number) {
   return n.toLocaleString("es-ES", { style: "currency", currency: "EUR" });
@@ -31,7 +30,6 @@ export function FinanceTracker({
   const [tipo, setTipo] = useState<FinanceTipo>("gasto");
   const [monto, setMonto] = useState("");
   const [descripcion, setDescripcion] = useState("");
-  const [visibility, setVisibility] = useState<Visibility>("shared");
   const [goalNombre, setGoalNombre] = useState("");
   const [goalMonto, setGoalMonto] = useState("");
   const [mounted, setMounted] = useState(false);
@@ -54,7 +52,7 @@ export function FinanceTracker({
     e.preventDefault();
     const value = parseFloat(monto);
     if (!profileId || Number.isNaN(value) || value <= 0 || !descripcion.trim()) return;
-    await addFinanceEntry(scope, tipo, value, descripcion.trim(), profileId, visibility);
+    await addFinanceEntry(scope, tipo, value, descripcion.trim(), profileId, "shared");
     setMonto("");
     setDescripcion("");
     refresh();
@@ -124,15 +122,12 @@ export function FinanceTracker({
             placeholder="Descripción"
             className="rounded-xl border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-amber-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
           />
-          <div className="flex items-center justify-between gap-2">
-            <VisibilityToggle value={visibility} onChange={setVisibility} />
-            <button
-              type="submit"
-              className="rounded-xl bg-amber-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-amber-600"
-            >
-              Guardar
-            </button>
-          </div>
+          <button
+            type="submit"
+            className="self-end rounded-xl bg-amber-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-amber-600"
+          >
+            Guardar
+          </button>
         </form>
 
         {entries.length > 0 && (
