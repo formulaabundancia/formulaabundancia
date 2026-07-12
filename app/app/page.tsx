@@ -17,6 +17,7 @@ import {
   HeartIcon,
   LeafIcon,
   PlayIcon,
+  RingsIcon,
   SparklesIcon,
   UtensilsIcon,
   WindIcon,
@@ -152,6 +153,7 @@ function LinkCard({
 }
 
 const ADULT_LINKS = [
+  { href: "/app/pareja", Icon: RingsIcon, label: "Pareja", block: "bg-rose-500" },
   { href: "/app/dylan", Icon: HeartIcon, label: "Dylan", block: "bg-sky-500" },
   { href: "/app/red-de-vida", Icon: GlobeIcon, label: "Red de la vida", block: "bg-violet-500" },
   { href: "/app/respiracion", Icon: WindIcon, label: "Respiración", block: "bg-cyan-500" },

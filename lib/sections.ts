@@ -178,12 +178,6 @@ export const SECTIONS: SectionConfig[] = [
         title: "Rituales y espiritualidad",
         categorias: ["Rituales", "Espiritualidad"],
       },
-      {
-        kind: "list",
-        blockKey: "amor-espiritu-no-negociables",
-        title: "Nuestros no negociables",
-        itemLabel: "Ej: nunca acostarnos enfadados",
-      },
     ],
   },
 ];

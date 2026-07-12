@@ -3,7 +3,11 @@
 import { supabase } from "./supabase";
 import {
   AmountItem,
+  CoupleAgreement,
   Deseo,
+  Dream,
+  DreamHorizon,
+  DreamTipo,
   Evento,
   FinanceEntry,
   FinanceGoal,
@@ -16,10 +20,13 @@ import {
   LogEntry,
   Meal,
   MealTipo,
+  Okr,
+  OkrResultado,
   PersonalContent,
   ProfileId,
   Recipe,
   Relacion,
+  Reward,
   Video,
   Visibility,
   WorkSession,
@@ -1036,6 +1043,180 @@ export async function toggleEventoAsistimos(id: string, current: boolean) {
 
 export async function deleteEvento(id: string) {
   await supabase.from("events").delete().eq("id", id);
+}
+
+// ---- Pareja: Sueños ----
+
+function mapDream(r: Record<string, unknown>): Dream {
+  return {
+    id: r.id as string,
+    ownerId: r.owner_id as string,
+    visibility: r.visibility as Visibility,
+    horizonte: r.horizonte as DreamHorizon,
+    tipo: r.tipo as DreamTipo,
+    texto: r.texto as string,
+    conseguido: (r.conseguido as boolean) ?? false,
+  };
+}
+
+export async function getDreams(): Promise<Dream[]> {
+  const { data, error } = await supabase.from("dreams").select("*").order("created_at", { ascending: true });
+  if (error) console.error("No se pudo leer 'dreams' — ¿está la tabla al día en Supabase?", error.message);
+  return (data ?? []).map(mapDream);
+}
+
+export async function addDream(
+  texto: string,
+  horizonte: DreamHorizon,
+  tipo: DreamTipo,
+  profileId: ProfileId,
+  visibility: Visibility
+) {
+  const { error } = await supabase
+    .from("dreams")
+    .insert({ owner_id: profileId, visibility, horizonte, tipo, texto });
+  if (error) throw new Error(error.message);
+}
+
+export async function updateDream(id: string, patch: { texto?: string; horizonte?: DreamHorizon; tipo?: DreamTipo }) {
+  await supabase.from("dreams").update(patch).eq("id", id);
+}
+
+export async function toggleDreamConseguido(id: string, current: boolean) {
+  await supabase.from("dreams").update({ conseguido: !current }).eq("id", id);
+}
+
+export async function deleteDream(id: string) {
+  await supabase.from("dreams").delete().eq("id", id);
+}
+
+// ---- Pareja: Plan 90 días (OKRs) ----
+
+function mapOkr(r: Record<string, unknown>): Okr {
+  return {
+    id: r.id as string,
+    ownerId: r.owner_id as string,
+    visibility: r.visibility as Visibility,
+    objetivo: r.objetivo as string,
+    resultados: (r.resultados as OkrResultado[]) ?? [],
+    fechaFin: (r.fecha_fin as string) || undefined,
+  };
+}
+
+export async function getOkrs(): Promise<Okr[]> {
+  const { data, error } = await supabase.from("okrs").select("*").order("created_at", { ascending: true });
+  if (error) console.error("No se pudo leer 'okrs' — ¿está la tabla al día en Supabase?", error.message);
+  return (data ?? []).map(mapOkr);
+}
+
+export async function addOkr(
+  objetivo: string,
+  resultados: OkrResultado[],
+  profileId: ProfileId,
+  visibility: Visibility,
+  fechaFin?: string
+) {
+  const { error } = await supabase
+    .from("okrs")
+    .insert({ owner_id: profileId, visibility, objetivo, resultados, fecha_fin: fechaFin || null });
+  if (error) throw new Error(error.message);
+}
+
+export async function updateOkr(
+  id: string,
+  patch: { objetivo?: string; resultados?: OkrResultado[]; fechaFin?: string | null }
+) {
+  const update: Record<string, unknown> = {};
+  if (patch.objetivo !== undefined) update.objetivo = patch.objetivo;
+  if (patch.resultados !== undefined) update.resultados = patch.resultados;
+  if (patch.fechaFin !== undefined) update.fecha_fin = patch.fechaFin;
+  await supabase.from("okrs").update(update).eq("id", id);
+}
+
+export async function deleteOkr(id: string) {
+  await supabase.from("okrs").delete().eq("id", id);
+}
+
+// ---- Pareja: Premios ----
+
+function mapReward(r: Record<string, unknown>): Reward {
+  return {
+    id: r.id as string,
+    ownerId: r.owner_id as string,
+    visibility: r.visibility as Visibility,
+    nombre: r.nombre as string,
+    descripcion: (r.descripcion as string) ?? "",
+    condicion: (r.condicion as string) ?? "",
+    imagenUrl: (r.imagen_url as string) || undefined,
+    conseguido: (r.conseguido as boolean) ?? false,
+    fechaConseguido: (r.fecha_conseguido as string) || undefined,
+  };
+}
+
+export async function getRewards(): Promise<Reward[]> {
+  const { data, error } = await supabase.from("rewards").select("*").order("created_at", { ascending: true });
+  if (error) console.error("No se pudo leer 'rewards' — ¿está la tabla al día en Supabase?", error.message);
+  return (data ?? []).map(mapReward);
+}
+
+export async function addReward(
+  nombre: string,
+  descripcion: string,
+  condicion: string,
+  profileId: ProfileId,
+  visibility: Visibility,
+  imagenUrl?: string
+) {
+  const { error } = await supabase.from("rewards").insert({
+    owner_id: profileId,
+    visibility,
+    nombre,
+    descripcion,
+    condicion,
+    imagen_url: imagenUrl || null,
+  });
+  if (error) throw new Error(error.message);
+}
+
+export async function toggleRewardConseguido(id: string, current: boolean) {
+  await supabase
+    .from("rewards")
+    .update({ conseguido: !current, fecha_conseguido: !current ? todayStr() : null })
+    .eq("id", id);
+}
+
+export async function deleteReward(id: string) {
+  await supabase.from("rewards").delete().eq("id", id);
+}
+
+// ---- Pareja: Acuerdo (fila única compartida) ----
+
+function mapCoupleAgreement(r: Record<string, unknown> | null): CoupleAgreement {
+  return {
+    pactos: (r?.pactos as string[]) ?? [],
+    firmaJose: (r?.firma_jose as string) || undefined,
+    firmaViviana: (r?.firma_viviana as string) || undefined,
+  };
+}
+
+export async function getCoupleAgreement(): Promise<CoupleAgreement> {
+  const { data, error } = await supabase.from("couple_agreement").select("*").eq("id", "default").maybeSingle();
+  if (error) console.error("No se pudo leer 'couple_agreement' — ¿está la tabla al día en Supabase?", error.message);
+  return mapCoupleAgreement(data);
+}
+
+async function upsertCoupleAgreement(patch: Record<string, unknown>) {
+  const { error } = await supabase.from("couple_agreement").upsert({ id: "default", ...patch }, { onConflict: "id" });
+  if (error) throw new Error(error.message);
+}
+
+export async function setCoupleAgreementPactos(pactos: string[]) {
+  // Cambiar los pactos invalida las firmas anteriores.
+  await upsertCoupleAgreement({ pactos, firma_jose: null, firma_viviana: null });
+}
+
+export async function signCoupleAgreement(who: "jose" | "viviana") {
+  await upsertCoupleAgreement({ [`firma_${who}`]: todayStr() });
 }
 
 export type { WorkSession };

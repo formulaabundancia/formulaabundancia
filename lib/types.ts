@@ -195,3 +195,50 @@ export interface Evento {
   imagenUrl?: string;
   asistimos: boolean;
 }
+
+// ---- Pareja ----
+
+export type DreamHorizon = 1 | 5 | 10;
+export type DreamTipo = "individual" | "pareja";
+
+export interface Dream {
+  id: string;
+  ownerId: ProfileId;
+  visibility: Visibility;
+  horizonte: DreamHorizon;
+  tipo: DreamTipo;
+  texto: string;
+  conseguido: boolean;
+}
+
+export interface OkrResultado {
+  texto: string;
+  hecho: boolean;
+}
+
+export interface Okr {
+  id: string;
+  ownerId: ProfileId;
+  visibility: Visibility;
+  objetivo: string;
+  resultados: OkrResultado[];
+  fechaFin?: string; // YYYY-MM-DD
+}
+
+export interface Reward {
+  id: string;
+  ownerId: ProfileId;
+  visibility: Visibility;
+  nombre: string;
+  descripcion: string;
+  condicion: string;
+  imagenUrl?: string;
+  conseguido: boolean;
+  fechaConseguido?: string; // YYYY-MM-DD
+}
+
+export interface CoupleAgreement {
+  pactos: string[];
+  firmaJose?: string; // YYYY-MM-DD
+  firmaViviana?: string; // YYYY-MM-DD
+}

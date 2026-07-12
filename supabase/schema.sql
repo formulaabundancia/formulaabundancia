@@ -286,6 +286,75 @@ create policy events_update_own on events for update using (owner_id = auth.uid(
 drop policy if exists events_delete_own on events;
 create policy events_delete_own on events for delete using (owner_id = auth.uid());
 
+-- ============ PAREJA: sueños, plan 90 días (OKRs), premios, acuerdo ============
+
+create table if not exists dreams (
+  id uuid primary key default gen_random_uuid(),
+  owner_id uuid not null references profiles(id) on delete cascade,
+  visibility text not null default 'shared' check (visibility in ('private', 'shared')),
+  horizonte int not null default 1 check (horizonte in (1, 5, 10)),
+  tipo text not null default 'pareja' check (tipo in ('individual', 'pareja')),
+  texto text not null,
+  conseguido boolean not null default false,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists okrs (
+  id uuid primary key default gen_random_uuid(),
+  owner_id uuid not null references profiles(id) on delete cascade,
+  visibility text not null default 'shared' check (visibility in ('private', 'shared')),
+  objetivo text not null,
+  resultados jsonb not null default '[]', -- [{ texto, hecho }]
+  fecha_fin date,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists rewards (
+  id uuid primary key default gen_random_uuid(),
+  owner_id uuid not null references profiles(id) on delete cascade,
+  visibility text not null default 'shared' check (visibility in ('private', 'shared')),
+  nombre text not null,
+  descripcion text not null default '',
+  condicion text not null default '',
+  imagen_url text,
+  conseguido boolean not null default false,
+  fecha_conseguido date,
+  created_at timestamptz not null default now()
+);
+
+do $$
+declare
+  t text;
+begin
+  foreach t in array array['dreams', 'okrs', 'rewards']
+  loop
+    execute format('alter table %I enable row level security', t);
+    execute format(
+      'create policy %I_select_own_or_shared on %I for select using (owner_id = auth.uid() or visibility = ''shared'')',
+      t, t
+    );
+    execute format('create policy %I_insert_own on %I for insert with check (owner_id = auth.uid())', t, t);
+    execute format('create policy %I_update_own on %I for update using (owner_id = auth.uid())', t, t);
+    execute format('create policy %I_delete_own on %I for delete using (owner_id = auth.uid())', t, t);
+  end loop;
+exception when duplicate_object then null;
+end $$;
+
+-- Acuerdo de pareja: una única fila compartida (los pactos que ambos firman).
+create table if not exists couple_agreement (
+  id text primary key default 'default',
+  pactos text[] not null default '{}',
+  firma_jose date,
+  firma_viviana date
+);
+
+alter table couple_agreement enable row level security;
+
+drop policy if exists couple_agreement_select on couple_agreement;
+create policy couple_agreement_select on couple_agreement for select using (auth.uid() is not null);
+drop policy if exists couple_agreement_write on couple_agreement;
+create policy couple_agreement_write on couple_agreement for all using (is_adult()) with check (is_adult());
+
 -- ============ SEED de hábitos (catálogo inicial) ============
 
 insert into habits (key, label, area, dimension, status, multi_check, meta_diaria) values
