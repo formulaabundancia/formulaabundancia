@@ -24,18 +24,19 @@ import {
 import { AREAS, DIMENSIONS, SECTIONS } from "@/lib/sections";
 import { Area, Dimension, PROFILE_DISPLAY_NAMES } from "@/lib/types";
 import { useProfile } from "@/lib/profile-context";
-import { RITUALS } from "@/lib/rituals";
-import { getHabitLogsForKeys, getRitualStreak, getTodayProgress, todayStr } from "@/lib/storage";
-
-const RITUAL_STEP_KEYS = new Set(RITUALS.flatMap((r) => r.steps));
-const RITUAL_STEP_KEYS_ARRAY = [...RITUAL_STEP_KEYS];
+import { groupStepsByRitual, RITUALS } from "@/lib/rituals";
+import { getHabitLogsForKeys, getHabits, getRitualStreak, getTodayProgress, todayStr } from "@/lib/storage";
 
 function TodayHero() {
   const { profile, profileId } = useProfile();
   const [today, setToday] = useState<{ done: number; total: number } | null>(null);
 
   useEffect(() => {
-    if (profileId) getTodayProgress(profileId, RITUAL_STEP_KEYS, RITUALS.length).then(setToday);
+    if (!profileId) return;
+    getHabits({ status: "active" }).then((habits) => {
+      const ritualStepKeys = new Set(habits.filter((h) => h.ritualKey).map((h) => h.key));
+      getTodayProgress(profileId, ritualStepKeys, RITUALS.length).then(setToday);
+    });
   }, [profileId]);
 
   return (
@@ -68,11 +69,14 @@ function HabitsBanner() {
   useEffect(() => {
     if (!profileId) return;
     (async () => {
+      const habits = await getHabits({ status: "active" });
+      const byRitual = groupStepsByRitual(habits);
+      const allStepKeys = Object.values(byRitual).flat();
       const [done, streaks] = await Promise.all([
-        getHabitLogsForKeys(profileId, RITUAL_STEP_KEYS_ARRAY, todayStr()),
-        Promise.all(RITUALS.map((r) => getRitualStreak(r.steps, profileId))),
+        getHabitLogsForKeys(profileId, allStepKeys, todayStr()),
+        Promise.all(Object.values(byRitual).map((keys) => getRitualStreak(keys, profileId))),
       ]);
-      setProgress({ done: done.size, total: RITUAL_STEP_KEYS_ARRAY.length });
+      setProgress({ done: done.size, total: allStepKeys.length });
       setStreak(Math.max(0, ...streaks));
     })();
   }, [profileId]);

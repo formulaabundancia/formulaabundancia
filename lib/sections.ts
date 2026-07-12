@@ -1,4 +1,4 @@
-import { RITUALS, RitualKey } from "./rituals";
+import { RitualKey } from "./rituals";
 import { Area, Dimension, FinanceScope, HabitKey } from "./types";
 
 export type BlockConfig =
@@ -246,8 +246,10 @@ export function getSection(area: string, dimension: string): SectionConfig | und
   return SECTIONS.find((s) => s.area === area && s.dimension === dimension);
 }
 
-// Claves de hábito que ya aparecen en un bloque fijo (tarjeta suelta, ritual, o
-// bloque de Dylan) — se usan para que "dynamic-habits" no las muestre duplicadas.
+// Claves de hábito que ya aparecen en un bloque fijo (tarjeta suelta o bloque
+// de Dylan) — se usan para que "dynamic-habits" no las muestre duplicadas. Los
+// pasos de ritual se excluyen aparte por su propio campo `ritualKey` (ver
+// DynamicHabits.tsx), ya que ahora son datos y no un array estático.
 export function getExplicitlyPlacedHabitKeys(): Set<string> {
   const keys = new Set<string>();
   const collect = (blocks: BlockConfig[]) => {
@@ -257,6 +259,5 @@ export function getExplicitlyPlacedHabitKeys(): Set<string> {
   };
   SECTIONS.forEach((s) => collect(s.blocks));
   collect(DYLAN_BLOCKS.map((d) => d.block));
-  RITUALS.forEach((r) => r.steps.forEach((s) => keys.add(s)));
   return keys;
 }

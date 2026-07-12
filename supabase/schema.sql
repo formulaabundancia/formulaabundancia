@@ -34,8 +34,21 @@ create table if not exists habits (
   dimension text not null,
   status text not null default 'suggested' check (status in ('active', 'suggested', 'declined')),
   multi_check boolean not null default false,
-  meta_diaria int
+  meta_diaria int,
+  -- Composición de rituales editable desde la app (en vez de código fijo):
+  ritual_key text, -- 'manana' | 'noche' | 'bienestar' | 'skincare', null si no es paso de ritual
+  ritual_group text, -- solo bienestar: 'manana' | 'noche'
+  sort_order int,
+  icon text,
+  time_label text
 );
+
+-- Por si la tabla ya existía de una ejecución anterior sin estas columnas.
+alter table habits add column if not exists ritual_key text;
+alter table habits add column if not exists ritual_group text;
+alter table habits add column if not exists sort_order int;
+alter table habits add column if not exists icon text;
+alter table habits add column if not exists time_label text;
 
 alter table habits enable row level security;
 
@@ -336,3 +349,28 @@ on conflict (key) do nothing;
 update habits set label = 'Batido Herbalife (chocolate)'
 where key in ('bienestar_batido_manana', 'bienestar_batido_noche')
   and label <> 'Batido Herbalife (chocolate)';
+
+-- ============ MIGRACIÓN: rituales editables ============
+-- Asigna ritual_key/ritual_group/sort_order/icon/time_label a los pasos de
+-- ritual que ya existen, para que los rituales pasen a componerse desde estos
+-- datos (editables desde la app) en vez de código fijo. Seguro de re-ejecutar.
+
+update habits set ritual_key = 'manana', sort_order = 1, icon = '💧', time_label = '5:00–5:05' where key = 'manana_despertar_agua';
+update habits set ritual_key = 'manana', sort_order = 2, icon = '🚿', time_label = '5:05–5:20' where key = 'manana_bano';
+update habits set ritual_key = 'manana', sort_order = 3, icon = '🙏', time_label = '5:20–5:35' where key = 'manana_agradecer_meditar';
+update habits set ritual_key = 'manana', sort_order = 4, icon = '✍️', time_label = '5:35–5:50' where key = 'manana_journal_objetivo';
+update habits set ritual_key = 'manana', sort_order = 5, icon = '📖', time_label = '5:50–6:20' where key = 'manana_lectura';
+
+update habits set ritual_key = 'noche', sort_order = 1, icon = '🧴', time_label = '19:30–19:45' where key = 'noche_ducha';
+update habits set ritual_key = 'noche', sort_order = 2, icon = '📓', time_label = '19:45–20:00' where key = 'noche_revision_dia';
+update habits set ritual_key = 'noche', sort_order = 3, icon = '💡', time_label = '20:00–20:10' where key = 'noche_aprendizajes';
+update habits set ritual_key = 'noche', sort_order = 4, icon = '🎯', time_label = '20:10–20:20' where key = 'noche_planear_manana';
+update habits set ritual_key = 'noche', sort_order = 5, icon = '📖', time_label = '20:20–20:45' where key = 'noche_lectura';
+
+update habits set ritual_key = 'bienestar', ritual_group = 'manana', sort_order = 1, icon = '🥤', time_label = '7:00' where key = 'bienestar_batido_manana';
+update habits set ritual_key = 'bienestar', ritual_group = 'manana', sort_order = 2, icon = '💪', time_label = '7:00' where key = 'bienestar_proteina_manana';
+update habits set ritual_key = 'bienestar', ritual_group = 'manana', sort_order = 3, icon = '🍵', time_label = '7:00' where key = 'bienestar_te_manana';
+update habits set ritual_key = 'bienestar', ritual_group = 'noche', sort_order = 4, icon = '🥤', time_label = '18:30' where key = 'bienestar_batido_noche';
+update habits set ritual_key = 'bienestar', ritual_group = 'noche', sort_order = 5, icon = '💪', time_label = '18:30' where key = 'bienestar_proteina_noche';
+
+update habits set ritual_key = 'skincare', sort_order = 1, icon = '🧴' where key = 'skincare_ritual';

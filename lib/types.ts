@@ -39,6 +39,11 @@ export interface Habit {
   status: HabitStatus;
   multiCheck?: boolean; // ej. agua: cada tap suma en vez de alternar
   metaDiaria?: number; // objetivo diario para multiCheck (ej. 8 vasos)
+  ritualKey?: string; // si es un paso de ritual: a qué ritual pertenece
+  ritualGroup?: string; // subgrupo dentro del ritual (ej. bienestar: mañana/noche)
+  sortOrder?: number; // orden dentro del ritual
+  icon?: string; // emoji mostrado en RitualBlock
+  timeLabel?: string; // hora mostrada en RitualBlock (texto libre, ej. "7:00")
 }
 
 export interface HabitLog {

@@ -13,7 +13,7 @@ export function DynamicHabits({ area, dimension }: { area: Area; dimension: Dime
   useEffect(() => {
     getHabits({ status: "active", area, dimension }).then((active) => {
       const placed = getExplicitlyPlacedHabitKeys();
-      setHabits(active.filter((h) => !placed.has(h.key)));
+      setHabits(active.filter((h) => !placed.has(h.key) && !h.ritualKey));
     });
   }, [area, dimension]);
 

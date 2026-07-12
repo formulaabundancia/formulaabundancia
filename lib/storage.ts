@@ -40,14 +40,25 @@ function mapHabit(r: Record<string, unknown>): Habit {
     status: r.status as HabitStatus,
     multiCheck: (r.multi_check as boolean) ?? false,
     metaDiaria: (r.meta_diaria as number) ?? undefined,
+    ritualKey: (r.ritual_key as string) || undefined,
+    ritualGroup: (r.ritual_group as string) || undefined,
+    sortOrder: (r.sort_order as number) ?? undefined,
+    icon: (r.icon as string) || undefined,
+    timeLabel: (r.time_label as string) || undefined,
   };
 }
 
-export async function getHabits(filter?: { status?: HabitStatus; area?: string; dimension?: string }): Promise<Habit[]> {
+export async function getHabits(filter?: {
+  status?: HabitStatus;
+  area?: string;
+  dimension?: string;
+  ritualKey?: string;
+}): Promise<Habit[]> {
   let query = supabase.from("habits").select("*");
   if (filter?.status) query = query.eq("status", filter.status);
   if (filter?.area) query = query.eq("area", filter.area);
   if (filter?.dimension) query = query.eq("dimension", filter.dimension);
+  if (filter?.ritualKey) query = query.eq("ritual_key", filter.ritualKey).order("sort_order", { ascending: true });
   const { data } = await query;
   return (data ?? []).map(mapHabit);
 }
@@ -79,6 +90,54 @@ export async function addHabit(label: string, area: string, dimension: string): 
     key = `${base}_${++n}`;
   }
   const { error } = await supabase.from("habits").insert({ key, label, area, dimension, status: "active" });
+  if (error) throw new Error(error.message);
+}
+
+// ---- Composición de rituales (pasos editables desde la app) ----
+
+export async function addRitualStep(
+  ritualKey: string,
+  label: string,
+  opts: { ritualGroup?: string; timeLabel?: string; icon?: string } = {}
+): Promise<void> {
+  const base = slugify(label) || "paso";
+  let key = `${ritualKey}_${base}`;
+  let n = 1;
+  while (await getHabit(key)) {
+    key = `${ritualKey}_${base}_${++n}`;
+  }
+  const existing = await getHabits({ ritualKey });
+  const nextOrder = Math.max(0, ...existing.map((h) => h.sortOrder ?? 0)) + 1;
+  const { error } = await supabase.from("habits").insert({
+    key,
+    label,
+    area: "salud",
+    dimension: "cuerpo",
+    status: "active",
+    ritual_key: ritualKey,
+    ritual_group: opts.ritualGroup || null,
+    sort_order: nextOrder,
+    icon: opts.icon || null,
+    time_label: opts.timeLabel || null,
+  });
+  if (error) throw new Error(error.message);
+}
+
+export async function updateHabit(
+  key: HabitKey,
+  patch: { label?: string; icon?: string; timeLabel?: string; ritualGroup?: string }
+): Promise<void> {
+  const update: Record<string, unknown> = {};
+  if (patch.label !== undefined) update.label = patch.label;
+  if (patch.icon !== undefined) update.icon = patch.icon || null;
+  if (patch.timeLabel !== undefined) update.time_label = patch.timeLabel || null;
+  if (patch.ritualGroup !== undefined) update.ritual_group = patch.ritualGroup || null;
+  const { error } = await supabase.from("habits").update(update).eq("key", key);
+  if (error) throw new Error(error.message);
+}
+
+export async function deleteHabit(key: HabitKey): Promise<void> {
+  const { error } = await supabase.from("habits").delete().eq("key", key);
   if (error) throw new Error(error.message);
 }
 

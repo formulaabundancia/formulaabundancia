@@ -7,7 +7,7 @@ import { ProgressRing } from "@/components/ProgressRing";
 import { PeriodSelector } from "@/components/PeriodSelector";
 import { PeriodChart } from "@/components/PeriodChart";
 import { ChartIcon, FlameIcon, TrophyIcon } from "@/components/icons";
-import { RITUALS } from "@/lib/rituals";
+import { groupStepsByRitual, RITUALS } from "@/lib/rituals";
 import { Habit, PROFILE_DISPLAY_NAMES, Profile } from "@/lib/types";
 import { useProfile } from "@/lib/profile-context";
 import {
@@ -25,8 +25,6 @@ import {
   PeriodBucket,
   PeriodGranularity,
 } from "@/lib/storage";
-
-const RITUAL_STEP_KEYS = new Set(RITUALS.flatMap((r) => r.steps));
 
 const XP_PER_LEVEL = 100;
 
@@ -52,18 +50,21 @@ function ProfileStatsCard({
   profile,
   bestStreak,
   streakBonus,
+  ritualStepKeys,
 }: {
   profile: Profile;
   bestStreak: number;
   streakBonus: number;
+  ritualStepKeys: Set<string>;
 }) {
   const [xp, setXp] = useState(0);
   const [today, setToday] = useState({ done: 0, total: 0 });
 
   useEffect(() => {
     getTotalXP(profile.id).then(setXp);
-    getTodayProgress(profile.id, RITUAL_STEP_KEYS, RITUALS.length).then(setToday);
-  }, [profile.id]);
+    getTodayProgress(profile.id, ritualStepKeys, RITUALS.length).then(setToday);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile.id, ritualStepKeys]);
 
   const level = Math.floor(xp / XP_PER_LEVEL) + 1;
   const xpIntoLevel = xp % XP_PER_LEVEL;
@@ -109,6 +110,7 @@ function ProfileStatsCard({
 export default function EstadisticasPage() {
   const { adultProfiles } = useProfile();
   const [looseHabits, setLooseHabits] = useState<Habit[]>([]);
+  const [ritualStepsByRitual, setRitualStepsByRitual] = useState<Partial<Record<string, string[]>>>({});
   const [ritualProgress, setRitualProgress] = useState<Record<string, { done: number; total: number }>>({});
   const [ritualStreaks, setRitualStreaks] = useState<Record<string, number>>({});
   const [streaks, setStreaks] = useState<Record<string, number>>({});
@@ -116,29 +118,34 @@ export default function EstadisticasPage() {
   const [yearsRange, setYearsRange] = useState(5);
   const [periodData, setPeriodData] = useState<Record<string, PeriodBucket[]>>({});
 
-  const activeItemsCount = looseHabits.length + RITUAL_STEP_KEYS.size;
+  const ritualStepKeys = new Set(Object.values(ritualStepsByRitual).flat().filter((k): k is string => !!k));
+  const activeItemsCount = looseHabits.length + ritualStepKeys.size;
   const bucketsCount = granularity === "year" ? yearsRange : BUCKETS_PER_GRANULARITY[granularity];
 
   useEffect(() => {
-    getHabits({ status: "active" }).then((habits) => setLooseHabits(habits.filter((h) => !RITUAL_STEP_KEYS.has(h.key))));
+    getHabits({ status: "active" }).then((habits) => {
+      setRitualStepsByRitual(groupStepsByRitual(habits));
+      setLooseHabits(habits.filter((h) => !h.ritualKey));
+    });
   }, []);
 
   useEffect(() => {
-    if (adultProfiles.length === 0) return;
+    if (adultProfiles.length === 0 || Object.keys(ritualStepsByRitual).length === 0) return;
     const today = todayStr();
     (async () => {
       const rp: Record<string, { done: number; total: number }> = {};
       const rs: Record<string, number> = {};
       for (const r of RITUALS) {
+        const stepKeys = ritualStepsByRitual[r.key] ?? [];
         for (const p of adultProfiles) {
-          rp[`${r.key}:${p.id}`] = await getRitualProgress(r.steps, p.id, today);
-          rs[`${r.key}:${p.id}`] = await getRitualStreak(r.steps, p.id);
+          rp[`${r.key}:${p.id}`] = await getRitualProgress(stepKeys, p.id, today);
+          rs[`${r.key}:${p.id}`] = await getRitualStreak(stepKeys, p.id);
         }
       }
       setRitualProgress(rp);
       setRitualStreaks(rs);
     })();
-  }, [adultProfiles.map((p) => p.id).join(",")]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [adultProfiles.map((p) => p.id).join(","), ritualStepsByRitual]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (adultProfiles.length === 0 || looseHabits.length === 0) return;
@@ -193,6 +200,7 @@ export default function EstadisticasPage() {
                 profile={p}
                 bestStreak={bestStreakFor(p.id)}
                 streakBonus={streakBonusFor(p.id)}
+                ritualStepKeys={ritualStepKeys}
               />
             ))}
           </div>
@@ -283,7 +291,10 @@ export default function EstadisticasPage() {
                 <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">{r.title}</p>
                 <div className="mt-3 flex flex-col gap-3">
                   {adultProfiles.map((p) => {
-                    const progress = ritualProgress[`${r.key}:${p.id}`] ?? { done: 0, total: r.steps.length };
+                    const progress = ritualProgress[`${r.key}:${p.id}`] ?? {
+                      done: 0,
+                      total: (ritualStepsByRitual[r.key] ?? []).length,
+                    };
                     return (
                       <div key={p.id} className="flex items-center gap-2.5">
                         <ProgressRing value={progress.done} total={progress.total} size={36} strokeWidth={4} />

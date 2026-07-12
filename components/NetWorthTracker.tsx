@@ -110,23 +110,44 @@ function MiniLedger({
 export function NetWorthTracker() {
   return (
     <div className="flex flex-col gap-5">
+      <p className="text-xs text-zinc-400 dark:text-zinc-500">
+        Vuestras huchas, al estilo de &ldquo;La mente millonaria&rdquo; de Harv Eker.
+      </p>
       <MiniLedger
-        blockKey="dinero-cuerpo-ingresos"
-        title="Fuentes de ingreso"
-        itemLabel="Ej: nómina, freelance..."
-        accent="text-emerald-600 dark:text-emerald-400"
+        blockKey="dinero-cuerpo-educacion"
+        title="Educación financiera"
+        itemLabel="Ej: curso, libro..."
+        accent="text-violet-600 dark:text-violet-400"
+      />
+      <MiniLedger
+        blockKey="dinero-cuerpo-ahorro"
+        title="Ahorro"
+        itemLabel="Ej: fondo de emergencia..."
+        accent="text-sky-600 dark:text-sky-400"
+      />
+      <MiniLedger
+        blockKey="dinero-cuerpo-cashflow"
+        title="Cash flow"
+        itemLabel="Ej: julio, agosto..."
+        accent="text-cyan-600 dark:text-cyan-400"
       />
       <MiniLedger
         blockKey="dinero-cuerpo-patrimonio"
-        title="Patrimonio e inversiones"
+        title="Inversiones"
         itemLabel="Ej: fondo, acciones..."
         accent="text-amber-600 dark:text-amber-400"
       />
       <MiniLedger
         blockKey="dinero-cuerpo-gastos-fijos"
-        title="Gastos fijos"
+        title="Gastos"
         itemLabel="Ej: alquiler, seguros..."
         accent="text-red-500 dark:text-red-400"
+      />
+      <MiniLedger
+        blockKey="dinero-cuerpo-ingresos"
+        title="Ingresos"
+        itemLabel="Ej: nómina, freelance..."
+        accent="text-emerald-600 dark:text-emerald-400"
       />
     </div>
   );
