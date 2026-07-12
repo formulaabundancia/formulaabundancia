@@ -6,24 +6,19 @@ import { Header } from "@/components/Header";
 import { ProgressRing } from "@/components/ProgressRing";
 import { WeekStrip } from "@/components/WeekStrip";
 import {
-  BrainIcon,
   CalendarIcon,
   ChecklistIcon,
   CoinIcon,
-  FeatherIcon,
-  DumbbellIcon,
   FlameIcon,
   GlobeIcon,
   HeartIcon,
   LeafIcon,
   PlayIcon,
   RingsIcon,
-  SparklesIcon,
   UtensilsIcon,
   WindIcon,
 } from "@/components/icons";
-import { AREAS, DIMENSIONS, SECTIONS } from "@/lib/sections";
-import { Area, Dimension, PROFILE_DISPLAY_NAMES } from "@/lib/types";
+import { PROFILE_DISPLAY_NAMES } from "@/lib/types";
 import { useProfile } from "@/lib/profile-context";
 import { groupStepsByRitual, RITUALS } from "@/lib/rituals";
 import { getHabitLogsForKeys, getHabits, getRitualStreak, getTodayProgress, todayStr } from "@/lib/storage";
@@ -109,36 +104,9 @@ function HabitsBanner() {
   );
 }
 
-const AREA_ICONS: Record<Area, React.ComponentType<{ className?: string }>> = {
-  salud: LeafIcon,
-  dinero: CoinIcon,
-  amor: HeartIcon,
-};
+type LinkItem = { href: string; Icon: React.ComponentType<{ className?: string }>; label: string; block: string };
 
-const AREA_ACCENT: Record<Area, string> = {
-  salud: "text-emerald-600 dark:text-emerald-400",
-  dinero: "text-amber-600 dark:text-amber-400",
-  amor: "text-rose-600 dark:text-rose-400",
-};
-
-const AREA_BLOCK: Record<Area, string> = {
-  salud: "bg-emerald-500",
-  dinero: "bg-amber-500",
-  amor: "bg-rose-500",
-};
-
-const DIMENSION_ICONS: Record<Dimension, React.ComponentType<{ className?: string }>> = {
-  cuerpo: DumbbellIcon,
-  alma: SparklesIcon,
-  mente: BrainIcon,
-  espiritu: FeatherIcon,
-};
-
-function LinkCard({
-  link,
-}: {
-  link: { href: string; Icon: React.ComponentType<{ className?: string }>; label: string; block: string };
-}) {
+function LinkCard({ link }: { link: LinkItem }) {
   return (
     <Link
       href={link.href}
@@ -152,72 +120,84 @@ function LinkCard({
   );
 }
 
-const ADULT_LINKS = [
-  { href: "/app/pareja", Icon: RingsIcon, label: "Pareja", block: "bg-rose-500" },
-  { href: "/app/dylan", Icon: HeartIcon, label: "Dylan", block: "bg-sky-500" },
-  { href: "/app/rueda-de-vida", Icon: GlobeIcon, label: "Rueda de la vida", block: "bg-violet-500" },
-  { href: "/app/respiracion", Icon: WindIcon, label: "Respiración", block: "bg-cyan-500" },
-  { href: "/app/recetas", Icon: UtensilsIcon, label: "Recetas", block: "bg-orange-500" },
-  { href: "/app/videoteca", Icon: PlayIcon, label: "Videoteca", block: "bg-red-500" },
-  { href: "/app/eventos", Icon: CalendarIcon, label: "Eventos", block: "bg-fuchsia-500" },
+const HOME_GROUPS: { titulo: string; links: LinkItem[] }[] = [
+  {
+    titulo: "Tus áreas",
+    links: [
+      { href: "/app/salud", Icon: LeafIcon, label: "Salud", block: "bg-emerald-500" },
+      { href: "/app/dinero", Icon: CoinIcon, label: "Dinero", block: "bg-amber-500" },
+      { href: "/app/amor", Icon: HeartIcon, label: "Amor", block: "bg-rose-500" },
+    ],
+  },
+  {
+    titulo: "Vosotros",
+    links: [
+      { href: "/app/pareja", Icon: RingsIcon, label: "Pareja", block: "bg-rose-500" },
+      { href: "/app/rueda-de-vida", Icon: GlobeIcon, label: "Rueda de la vida", block: "bg-violet-500" },
+    ],
+  },
+  {
+    titulo: "Familia",
+    links: [
+      { href: "/app/dylan", Icon: HeartIcon, label: "Dylan", block: "bg-sky-500" },
+      { href: "/app/respiracion", Icon: WindIcon, label: "Respiración", block: "bg-cyan-500" },
+    ],
+  },
+  {
+    titulo: "Vuestro contenido",
+    links: [
+      { href: "/app/recetas", Icon: UtensilsIcon, label: "Recetas", block: "bg-orange-500" },
+      { href: "/app/videoteca", Icon: PlayIcon, label: "Videoteca", block: "bg-red-500" },
+      { href: "/app/eventos", Icon: CalendarIcon, label: "Eventos", block: "bg-fuchsia-500" },
+    ],
+  },
 ];
 
-const CHILD_LINKS = [{ href: "/app/respiracion", Icon: WindIcon, label: "Respiración", block: "bg-cyan-500" }];
+const CHILD_LINKS: LinkItem[] = [{ href: "/app/respiracion", Icon: WindIcon, label: "Respiración", block: "bg-cyan-500" }];
 
 export default function HomePage() {
   const { profile } = useProfile();
   const isChild = profile?.role === "child";
+
+  if (isChild) {
+    return (
+      <>
+        <Header />
+        <main className="flex-1 px-5 py-6">
+          <div className="mx-auto max-w-2xl">
+            <div className="grid grid-cols-1 gap-3">
+              {CHILD_LINKS.map((link) => (
+                <LinkCard key={link.href} link={link} />
+              ))}
+            </div>
+          </div>
+        </main>
+      </>
+    );
+  }
 
   return (
     <>
       <Header />
       <main className="flex-1 px-5 py-6">
         <div className="mx-auto max-w-2xl">
-          {!isChild && <TodayHero />}
-          {!isChild && <HabitsBanner />}
+          <TodayHero />
+          <HabitsBanner />
 
-          <div className={`mb-8 grid gap-3 ${isChild ? "grid-cols-1" : "grid-cols-2"}`}>
-            {(isChild ? CHILD_LINKS : ADULT_LINKS).map((link) => (
-              <LinkCard key={link.href} link={link} />
+          <div className="flex flex-col gap-8">
+            {HOME_GROUPS.map((group) => (
+              <div key={group.titulo}>
+                <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                  {group.titulo}
+                </h2>
+                <div className="grid grid-cols-2 gap-3">
+                  {group.links.map((link) => (
+                    <LinkCard key={link.href} link={link} />
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
-
-          {!isChild &&
-            AREAS.map((area) => {
-              const AreaIcon = AREA_ICONS[area.id];
-              const accent = AREA_ACCENT[area.id];
-              const block = AREA_BLOCK[area.id];
-              return (
-                <div key={area.id} className="mb-8">
-                  <div className="mb-3 flex items-center gap-2">
-                    <AreaIcon className={`h-4 w-4 ${accent}`} />
-                    <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                      {area.label}
-                    </h2>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    {DIMENSIONS.map((dim) => {
-                      const section = SECTIONS.find((s) => s.area === area.id && s.dimension === dim.id);
-                      if (!section) return null;
-                      const DimIcon = DIMENSION_ICONS[dim.id];
-                      return (
-                        <Link
-                          key={dim.id}
-                          href={`/app/${area.id}/${dim.id}`}
-                          className={`flex flex-col gap-2 rounded-3xl p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${block}`}
-                        >
-                          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/25">
-                            <DimIcon className="h-5 w-5 text-white" />
-                          </span>
-                          <span className="text-sm font-semibold text-white">{dim.label}</span>
-                          <p className="text-xs leading-snug text-white/80">{section.subtitle}</p>
-                        </Link>
-                      );
-                    })}
-                  </div>
-                </div>
-              );
-            })}
         </div>
       </main>
     </>

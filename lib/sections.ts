@@ -240,6 +240,17 @@ export function getSection(area: string, dimension: string): SectionConfig | und
   return SECTIONS.find((s) => s.area === area && s.dimension === dimension);
 }
 
+// Secciones de un área, en el orden de DIMENSIONS (cuerpo, alma, mente, espíritu).
+export function getSectionsByArea(area: string): SectionConfig[] {
+  return DIMENSIONS.map((d) => SECTIONS.find((s) => s.area === area && s.dimension === d.id)).filter(
+    (s): s is SectionConfig => !!s
+  );
+}
+
+export function getAreaMeta(area: string) {
+  return AREAS.find((a) => a.id === area);
+}
+
 // Claves de hábito que ya aparecen en un bloque fijo (tarjeta suelta o bloque
 // de Dylan) — se usan para que "dynamic-habits" no las muestre duplicadas. Los
 // pasos de ritual se excluyen aparte por su propio campo `ritualKey` (ver
