@@ -27,8 +27,10 @@ import {
   Recipe,
   Relacion,
   Reward,
+  TaskLogEntry,
   Video,
   Visibility,
+  WheelEntry,
   WorkSession,
 } from "./types";
 
@@ -1217,6 +1219,67 @@ export async function setCoupleAgreementPactos(pactos: string[]) {
 
 export async function signCoupleAgreement(who: "jose" | "viviana") {
   await upsertCoupleAgreement({ [`firma_${who}`]: todayStr() });
+}
+
+// ---- Rueda de la vida ----
+
+function mapWheelEntry(r: Record<string, unknown>): WheelEntry {
+  return {
+    id: r.id as string,
+    ownerId: r.owner_id as string,
+    visibility: r.visibility as Visibility,
+    mes: r.mes as string,
+    area: r.area as string,
+    score: r.score as number,
+  };
+}
+
+export async function getWheelEntries(): Promise<WheelEntry[]> {
+  const { data, error } = await supabase.from("wheel_entries").select("*");
+  if (error) console.error("No se pudo leer 'wheel_entries' — ¿está la tabla al día en Supabase?", error.message);
+  return (data ?? []).map(mapWheelEntry);
+}
+
+export async function upsertWheelScore(mes: string, area: string, score: number, profileId: ProfileId) {
+  const { error } = await supabase
+    .from("wheel_entries")
+    .upsert(
+      { owner_id: profileId, visibility: "shared", mes, area, score },
+      { onConflict: "owner_id,mes,area" }
+    );
+  if (error) throw new Error(error.message);
+}
+
+// ---- Tareas de casa: registro de completadas ----
+
+function mapTaskLog(r: Record<string, unknown>): TaskLogEntry {
+  return {
+    id: r.id as string,
+    profileId: r.profile_id as string,
+    blockKey: r.block_key as string,
+    titulo: r.titulo as string,
+    categoria: (r.categoria as string) || undefined,
+    date: r.date as string,
+  };
+}
+
+export async function logTaskDone(
+  blockKey: string,
+  titulo: string,
+  categoria: string | null,
+  profileId: ProfileId
+) {
+  await supabase.from("task_log").insert({ profile_id: profileId, block_key: blockKey, titulo, categoria, date: todayStr() });
+}
+
+export async function getTaskLog(blockKey: string, sinceDate: string): Promise<TaskLogEntry[]> {
+  const { data, error } = await supabase
+    .from("task_log")
+    .select("*")
+    .eq("block_key", blockKey)
+    .gte("date", sinceDate);
+  if (error) console.error("No se pudo leer 'task_log' — ¿está la tabla al día en Supabase?", error.message);
+  return (data ?? []).map(mapTaskLog);
 }
 
 export type { WorkSession };

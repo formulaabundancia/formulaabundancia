@@ -242,3 +242,21 @@ export interface CoupleAgreement {
   firmaJose?: string; // YYYY-MM-DD
   firmaViviana?: string; // YYYY-MM-DD
 }
+
+export interface WheelEntry {
+  id: string;
+  ownerId: ProfileId;
+  visibility: Visibility;
+  mes: string; // YYYY-MM-DD (primer día del mes)
+  area: string;
+  score: number; // 0-10
+}
+
+export interface TaskLogEntry {
+  id: string;
+  profileId: ProfileId;
+  blockKey: string;
+  titulo: string;
+  categoria?: string;
+  date: string; // YYYY-MM-DD
+}

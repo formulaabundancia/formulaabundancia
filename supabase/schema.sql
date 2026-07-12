@@ -340,6 +340,46 @@ begin
 exception when duplicate_object then null;
 end $$;
 
+-- Rueda de la vida: una puntuación (0-10) por persona, mes y área.
+create table if not exists wheel_entries (
+  id uuid primary key default gen_random_uuid(),
+  owner_id uuid not null references profiles(id) on delete cascade,
+  visibility text not null default 'shared' check (visibility in ('private', 'shared')),
+  mes date not null, -- primer día del mes
+  area text not null,
+  score int not null check (score between 0 and 10),
+  unique (owner_id, mes, area)
+);
+
+alter table wheel_entries enable row level security;
+
+drop policy if exists wheel_entries_select on wheel_entries;
+create policy wheel_entries_select on wheel_entries for select using (owner_id = auth.uid() or visibility = 'shared');
+drop policy if exists wheel_entries_insert_own on wheel_entries;
+create policy wheel_entries_insert_own on wheel_entries for insert with check (owner_id = auth.uid());
+drop policy if exists wheel_entries_update_own on wheel_entries;
+create policy wheel_entries_update_own on wheel_entries for update using (owner_id = auth.uid());
+drop policy if exists wheel_entries_delete_own on wheel_entries;
+create policy wheel_entries_delete_own on wheel_entries for delete using (owner_id = auth.uid());
+
+-- Registro de tareas de casa completadas (quién hizo qué y cuándo) para las
+-- estadísticas de reparto — el `lists.hecho` se resetea a diario y no guarda quién.
+create table if not exists task_log (
+  id uuid primary key default gen_random_uuid(),
+  profile_id uuid not null references profiles(id) on delete cascade,
+  block_key text not null,
+  titulo text not null,
+  categoria text,
+  date date not null
+);
+
+alter table task_log enable row level security;
+
+drop policy if exists task_log_select_all on task_log;
+create policy task_log_select_all on task_log for select using (auth.uid() is not null);
+drop policy if exists task_log_write_own on task_log;
+create policy task_log_write_own on task_log for all using (profile_id = auth.uid()) with check (profile_id = auth.uid());
+
 -- Acuerdo de pareja: una única fila compartida (los pactos que ambos firman).
 create table if not exists couple_agreement (
   id text primary key default 'default',

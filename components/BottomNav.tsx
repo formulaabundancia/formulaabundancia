@@ -17,7 +17,7 @@ const CHILD_ITEMS = [
   { href: "/app", Icon: HomeIcon, label: "Inicio" },
   { href: "/app/dylan", Icon: HeartIcon, label: "Mi sección" },
   { href: "/app/tareas", Icon: ChecklistIcon, label: "Tareas" },
-  { href: "/app/red-de-vida", Icon: GlobeIcon, label: "Familia" },
+  { href: "/app/rueda-de-vida", Icon: GlobeIcon, label: "Mi rueda" },
 ];
 
 function NavLink({ item, active }: { item: (typeof ADULT_ITEMS)[number]; active: boolean }) {
