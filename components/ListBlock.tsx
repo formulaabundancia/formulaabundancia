@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { addListItem, deleteListItem, getListItems, toggleListItem, todayStr } from "@/lib/storage";
+import { addListItem, deleteListItem, getListItems, toggleListItem, todayStr, updateListItem } from "@/lib/storage";
 import { ListItem, PROFILE_AVATAR_COLOR, PROFILE_DISPLAY_NAMES, ProfileId, ProfileName } from "@/lib/types";
 import { useProfile } from "@/lib/profile-context";
 import { ProgressRing } from "@/components/ProgressRing";
+import { PencilIcon } from "@/components/icons";
 
 const DEFAULT_TAREAS: { titulo: string; categoria: string }[] = [
   { titulo: "Sacar la basura", categoria: "Cocina" },
@@ -39,6 +40,133 @@ function Avatar({ name }: { name: ProfileName }) {
   );
 }
 
+interface EditDraft {
+  titulo: string;
+  categoria: string;
+  asignadoA: ProfileId | "";
+}
+
+function EditTaskRow({
+  draft,
+  onChange,
+  onSave,
+  onCancel,
+  allowAssign,
+  allowCategory,
+  allProfiles,
+}: {
+  draft: EditDraft;
+  onChange: (draft: EditDraft) => void;
+  onSave: () => void;
+  onCancel: () => void;
+  allowAssign?: boolean;
+  allowCategory?: boolean;
+  allProfiles: { id: string; name: ProfileName }[];
+}) {
+  return (
+    <div className="flex flex-col gap-2 rounded-2xl bg-zinc-50 px-4 py-3 dark:bg-zinc-800/60">
+      <input
+        value={draft.titulo}
+        onChange={(e) => onChange({ ...draft, titulo: e.target.value })}
+        className="rounded-lg border border-transparent bg-white px-2 py-1.5 text-sm outline-none focus:border-zinc-300 dark:bg-zinc-900 dark:text-zinc-100 dark:focus:border-zinc-600"
+        autoFocus
+      />
+      <div className="flex flex-wrap gap-2">
+        {allowCategory && (
+          <select
+            value={draft.categoria}
+            onChange={(e) => onChange({ ...draft, categoria: e.target.value })}
+            className="rounded-lg border border-transparent bg-white px-2 py-1.5 text-xs outline-none focus:border-zinc-300 dark:bg-zinc-900 dark:text-zinc-100 dark:focus:border-zinc-600"
+          >
+            {CATEGORY_OPTIONS.map((c) => (
+              <option key={c} value={c}>
+                {CATEGORY_ICON[c]} {c}
+              </option>
+            ))}
+          </select>
+        )}
+        {allowAssign && (
+          <select
+            value={draft.asignadoA}
+            onChange={(e) => onChange({ ...draft, asignadoA: e.target.value })}
+            className="flex-1 rounded-lg border border-transparent bg-white px-2 py-1.5 text-xs outline-none focus:border-zinc-300 dark:bg-zinc-900 dark:text-zinc-100 dark:focus:border-zinc-600"
+          >
+            <option value="">Cualquiera</option>
+            {allProfiles.map((p) => (
+              <option key={p.id} value={p.id}>
+                {PROFILE_DISPLAY_NAMES[p.name]}
+              </option>
+            ))}
+          </select>
+        )}
+      </div>
+      <div className="flex justify-end gap-3 pt-0.5">
+        <button onClick={onCancel} className="text-xs font-medium text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200">
+          Cancelar
+        </button>
+        <button onClick={onSave} className="text-xs font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400">
+          Guardar
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function TaskRow({
+  item,
+  done,
+  allowAssign,
+  allProfiles,
+  onToggle,
+  onEdit,
+  onDelete,
+}: {
+  item: ListItem;
+  done: boolean;
+  allowAssign?: boolean;
+  allProfiles: { id: string; name: ProfileName }[];
+  onToggle: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
+}) {
+  const assignee = assignedProfile(allProfiles, item.asignadoA);
+  return (
+    <div
+      className={`flex items-center justify-between gap-2 rounded-2xl px-4 py-3 transition ${
+        done ? "bg-zinc-50/60 dark:bg-zinc-900/50" : "bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-800/60 dark:hover:bg-zinc-800"
+      }`}
+    >
+      <button onClick={onToggle} className="flex min-w-0 flex-1 items-center gap-3 text-left">
+        <span
+          className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-sm ${
+            done ? "bg-emerald-500 text-white" : "border-2 border-zinc-300 dark:border-zinc-600"
+          }`}
+        >
+          {done ? "✓" : ""}
+        </span>
+        <span className={`truncate ${done ? "text-zinc-400 line-through" : "text-zinc-800 dark:text-zinc-100"}`}>
+          {item.visibility === "private" ? "🔒 " : ""}
+          {item.titulo}
+        </span>
+      </button>
+      <span className="flex shrink-0 items-center gap-2.5">
+        {allowAssign &&
+          (assignee ? (
+            <Avatar name={assignee.name} />
+          ) : (
+            !done && <span className="text-xs text-zinc-400">Cualquiera</span>
+          ))}
+        <button onClick={onEdit} className="text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200" aria-label="Editar tarea" title="Editar">
+          <PencilIcon className="h-3.5 w-3.5" />
+        </button>
+        <button onClick={onDelete} className="text-zinc-400 hover:text-red-500" aria-label="Eliminar tarea" title="Eliminar">
+          ✕
+        </button>
+      </span>
+    </div>
+  );
+}
+
 export interface ListBlockProps {
   blockKey: string;
   title: string;
@@ -62,6 +190,8 @@ export function ListBlock({
   const [asignadoA, setAsignadoA] = useState<ProfileId | "">("");
   const [categoria, setCategoria] = useState(CATEGORY_OPTIONS[0]);
   const [mounted, setMounted] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState<EditDraft>({ titulo: "", categoria: CATEGORY_OPTIONS[0], asignadoA: "" });
 
   useEffect(() => {
     setMounted(true);
@@ -89,6 +219,26 @@ export function ListBlock({
     refresh();
   };
 
+  const startEdit = (item: ListItem) => {
+    setEditingId(item.id);
+    setEditDraft({
+      titulo: item.titulo,
+      categoria: item.categoria || CATEGORY_OPTIONS[0],
+      asignadoA: item.asignadoA || "",
+    });
+  };
+
+  const saveEdit = async () => {
+    if (!editingId || !editDraft.titulo.trim()) return;
+    await updateListItem(editingId, {
+      titulo: editDraft.titulo.trim(),
+      categoria: allowCategory ? editDraft.categoria : null,
+      asignadoA: editDraft.asignadoA || null,
+    });
+    setEditingId(null);
+    refresh();
+  };
+
   if (!mounted) return null;
 
   const isDone = (item: ListItem) => (dailyReset ? item.hechoDate === todayStr() : item.hecho);
@@ -102,6 +252,35 @@ export function ListBlock({
         return acc;
       }, {})
     : { "": pendientes };
+
+  const renderRow = (item: ListItem) => {
+    if (editingId === item.id) {
+      return (
+        <EditTaskRow
+          key={item.id}
+          draft={editDraft}
+          onChange={setEditDraft}
+          onSave={saveEdit}
+          onCancel={() => setEditingId(null)}
+          allowAssign={allowAssign}
+          allowCategory={allowCategory}
+          allProfiles={allProfiles}
+        />
+      );
+    }
+    return (
+      <TaskRow
+        key={item.id}
+        item={item}
+        done={isDone(item)}
+        allowAssign={allowAssign}
+        allProfiles={allProfiles}
+        onToggle={() => toggleListItem(item.id, isDone(item), dailyReset).then(refresh)}
+        onEdit={() => startEdit(item)}
+        onDelete={() => deleteListItem(item.id).then(refresh)}
+      />
+    );
+  };
 
   return (
     <div className="rounded-3xl bg-white p-5 shadow-sm dark:bg-zinc-900">
@@ -168,31 +347,13 @@ export function ListBlock({
                   {cat}
                 </h4>
               )}
-              <div className="flex flex-col gap-2">
-                {catItems.map((item) => {
-                  const assignee = assignedProfile(allProfiles, item.asignadoA);
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => toggleListItem(item.id, isDone(item), dailyReset).then(refresh)}
-                      className="flex items-center justify-between rounded-2xl bg-zinc-50 px-4 py-3 text-left transition hover:bg-zinc-100 dark:bg-zinc-800/60 dark:hover:bg-zinc-800"
-                    >
-                      <span className="flex items-center gap-3">
-                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 border-zinc-300 dark:border-zinc-600" />
-                        <span className="text-zinc-800 dark:text-zinc-100">
-                          {item.visibility === "private" ? "🔒 " : ""}
-                          {item.titulo}
-                        </span>
-                      </span>
-                      {allowAssign &&
-                        (assignee ? <Avatar name={assignee.name} /> : <span className="text-xs text-zinc-400">Cualquiera</span>)}
-                    </button>
-                  );
-                })}
-              </div>
+              <div className="flex flex-col gap-2">{catItems.map(renderRow)}</div>
             </div>
           );
         })}
+        {items.length === 0 && (
+          <p className="text-sm text-zinc-400 dark:text-zinc-500">Aún no hay tareas — añade la primera arriba.</p>
+        )}
       </div>
 
       {hechos.length > 0 && (
@@ -200,32 +361,7 @@ export function ListBlock({
           <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-400">
             {dailyReset ? "Hechos hoy" : "Hechos"}
           </h4>
-          <div className="flex flex-col gap-2">
-            {hechos.map((item) => (
-              <div
-                key={item.id}
-                className="flex items-center justify-between rounded-2xl bg-zinc-50/60 px-4 py-3 dark:bg-zinc-900/50"
-              >
-                <button
-                  onClick={() => toggleListItem(item.id, isDone(item), dailyReset).then(refresh)}
-                  className="flex items-center gap-3"
-                >
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-sm text-white">
-                    ✓
-                  </span>
-                  <span className="text-zinc-400 line-through">{item.titulo}</span>
-                </button>
-                <button
-                  onClick={() => deleteListItem(item.id).then(refresh)}
-                  className="text-zinc-400 hover:text-red-500"
-                  aria-label="Eliminar"
-                  title="Eliminar tarea"
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
-          </div>
+          <div className="flex flex-col gap-2">{hechos.map(renderRow)}</div>
         </div>
       )}
     </div>

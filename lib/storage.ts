@@ -709,6 +709,17 @@ export async function toggleListItem(id: string, currentHecho: boolean, dailyRes
   }
 }
 
+export async function updateListItem(
+  id: string,
+  patch: { titulo?: string; categoria?: string | null; asignadoA?: ProfileId | null }
+) {
+  const update: Record<string, unknown> = {};
+  if (patch.titulo !== undefined) update.titulo = patch.titulo;
+  if (patch.categoria !== undefined) update.categoria = patch.categoria;
+  if (patch.asignadoA !== undefined) update.asignado_a = patch.asignadoA;
+  await supabase.from("lists").update(update).eq("id", id);
+}
+
 export async function deleteListItem(id: string) {
   await supabase.from("lists").delete().eq("id", id);
 }
