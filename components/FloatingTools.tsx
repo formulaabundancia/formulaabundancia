@@ -141,14 +141,14 @@ export function FloatingTools() {
 
       {open && (
         <div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:items-center"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 px-4 pb-28 sm:items-center sm:pb-28"
           onClick={(e) => {
             if (e.target === e.currentTarget) setOpen(false);
           }}
         >
           <div
             ref={panelRef}
-            className="w-full max-w-sm rounded-t-3xl bg-white p-5 shadow-xl dark:bg-zinc-900 sm:rounded-3xl"
+            className="w-full max-w-sm rounded-3xl bg-white p-5 shadow-xl dark:bg-zinc-900"
           >
             <div className="flex items-center justify-between">
               <div className="flex gap-2">
