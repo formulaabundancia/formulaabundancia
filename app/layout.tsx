@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ProfileProvider } from "@/lib/profile-context";
 import { ThemeProvider } from "@/lib/theme-context";
-import { FloatingTools } from "@/components/FloatingTools";
 import { BottomNav } from "@/components/BottomNav";
 
 const THEME_INIT_SCRIPT = `
@@ -49,7 +48,6 @@ export default function RootLayout({
         <ThemeProvider>
           <ProfileProvider>
             {children}
-            <FloatingTools />
             <BottomNav />
           </ProfileProvider>
         </ThemeProvider>

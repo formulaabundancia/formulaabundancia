@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Header } from "@/components/Header";
 import { ProgressRing } from "@/components/ProgressRing";
 import { WeekStrip } from "@/components/WeekStrip";
+import { FloatingTools } from "@/components/FloatingTools";
 import {
   BrainIcon,
   CalendarIcon,
@@ -133,6 +134,24 @@ const DIMENSION_ICONS: Record<Dimension, React.ComponentType<{ className?: strin
   espiritu: FeatherIcon,
 };
 
+function LinkCard({
+  link,
+}: {
+  link: { href: string; Icon: React.ComponentType<{ className?: string }>; label: string; block: string };
+}) {
+  return (
+    <Link
+      href={link.href}
+      className={`flex flex-col gap-3 rounded-3xl p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${link.block}`}
+    >
+      <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/25">
+        <link.Icon className="h-5 w-5 text-white" />
+      </span>
+      <span className="text-sm font-semibold text-white">{link.label}</span>
+    </Link>
+  );
+}
+
 const ADULT_LINKS = [
   { href: "/app/dylan", Icon: HeartIcon, label: "Dylan", block: "bg-sky-500" },
   { href: "/app/red-de-vida", Icon: GlobeIcon, label: "Red de la vida", block: "bg-violet-500" },
@@ -156,20 +175,29 @@ export default function HomePage() {
           {!isChild && <TodayHero />}
           {!isChild && <HabitsBanner />}
 
-          <div className={`mb-8 grid gap-3 ${isChild ? "grid-cols-1" : "grid-cols-2"}`}>
-            {(isChild ? CHILD_LINKS : ADULT_LINKS).map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`flex flex-col gap-3 rounded-3xl p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${link.block}`}
-              >
-                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/25">
-                  <link.Icon className="h-5 w-5 text-white" />
-                </span>
-                <span className="text-sm font-semibold text-white">{link.label}</span>
-              </Link>
-            ))}
-          </div>
+          {isChild ? (
+            <div className="mb-8 grid grid-cols-1 gap-3">
+              {CHILD_LINKS.map((link) => (
+                <LinkCard key={link.href} link={link} />
+              ))}
+            </div>
+          ) : (
+            <>
+              <div className="mb-3 grid grid-cols-2 gap-3">
+                {ADULT_LINKS.slice(0, 4).map((link) => (
+                  <LinkCard key={link.href} link={link} />
+                ))}
+              </div>
+              <div className="mb-3">
+                <FloatingTools />
+              </div>
+              <div className="mb-8 grid grid-cols-2 gap-3">
+                {ADULT_LINKS.slice(4).map((link) => (
+                  <LinkCard key={link.href} link={link} />
+                ))}
+              </div>
+            </>
+          )}
 
           {!isChild &&
             AREAS.map((area) => {
