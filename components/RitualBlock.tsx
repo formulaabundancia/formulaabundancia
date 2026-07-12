@@ -85,52 +85,63 @@ export function RitualBlock({ ritualKey }: { ritualKey: RitualKey }) {
                 </div>
               </div>
               {labelsLoaded ? (
-                <div className="flex flex-col gap-1.5">
-                  {ritual.steps.map((stepKey) => {
-                    const stepDone = doneMap[`${p.id}:${stepKey}`];
-                    const meta = STEP_META[stepKey];
-                    return (
-                      <button
-                        key={stepKey}
-                        onClick={() => toggle(p.id, stepKey)}
-                        className={`flex items-center gap-3 rounded-2xl px-3 py-2.5 text-left transition ${
-                          stepDone ? "bg-emerald-50 dark:bg-emerald-950/40" : "bg-zinc-50 dark:bg-zinc-800/60"
-                        }`}
-                      >
-                        <span
-                          className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 text-[10px] ${
-                            stepDone
-                              ? "border-emerald-500 bg-emerald-500 text-white"
-                              : "border-zinc-300 dark:border-zinc-600"
-                          }`}
-                        >
-                          {stepDone ? "✓" : ""}
-                        </span>
-                        {meta && (
-                          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white text-base shadow-sm dark:bg-zinc-900">
-                            {meta.icon}
-                          </span>
-                        )}
-                        <div className="min-w-0 flex-1">
-                          <p
-                            className={`text-sm ${
-                              stepDone
-                                ? "text-emerald-700 line-through dark:text-emerald-400"
-                                : "text-zinc-700 dark:text-zinc-200"
+                <div className="flex flex-col gap-4">
+                  {(ritual.groups ?? [{ label: null, steps: ritual.steps }]).map((group, gi) => (
+                    <div key={group.label ?? gi} className="flex flex-col gap-1.5">
+                      {group.label && (
+                        <p className="px-1 text-[11px] font-semibold uppercase tracking-wide text-zinc-400 dark:text-zinc-500">
+                          {group.label}
+                        </p>
+                      )}
+                      {group.steps.map((stepKey) => {
+                        const stepDone = doneMap[`${p.id}:${stepKey}`];
+                        const meta = STEP_META[stepKey];
+                        return (
+                          <button
+                            key={stepKey}
+                            onClick={() => toggle(p.id, stepKey)}
+                            className={`flex items-center gap-3 rounded-2xl px-3 py-2.5 text-left transition ${
+                              stepDone ? "bg-emerald-50 dark:bg-emerald-950/40" : "bg-zinc-50 dark:bg-zinc-800/60"
                             }`}
                           >
-                            {labels[stepKey] ?? stepKey}
-                          </p>
-                          {meta?.time && <p className="text-[11px] text-zinc-400 dark:text-zinc-500">🕐 {meta.time}</p>}
-                        </div>
-                        {meta && (
-                          <span className="shrink-0 rounded-full bg-white px-2 py-0.5 text-[10px] font-medium text-zinc-500 shadow-sm dark:bg-zinc-900 dark:text-zinc-400">
-                            {meta.tag}
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })}
+                            <span
+                              className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 text-[10px] ${
+                                stepDone
+                                  ? "border-emerald-500 bg-emerald-500 text-white"
+                                  : "border-zinc-300 dark:border-zinc-600"
+                              }`}
+                            >
+                              {stepDone ? "✓" : ""}
+                            </span>
+                            {meta && (
+                              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white text-base shadow-sm dark:bg-zinc-900">
+                                {meta.icon}
+                              </span>
+                            )}
+                            <div className="min-w-0 flex-1">
+                              <p
+                                className={`text-sm ${
+                                  stepDone
+                                    ? "text-emerald-700 line-through dark:text-emerald-400"
+                                    : "text-zinc-700 dark:text-zinc-200"
+                                }`}
+                              >
+                                {labels[stepKey] ?? stepKey}
+                              </p>
+                              {meta?.time && (
+                                <p className="text-[11px] text-zinc-400 dark:text-zinc-500">🕐 {meta.time}</p>
+                              )}
+                            </div>
+                            {meta && (
+                              <span className="shrink-0 rounded-full bg-white px-2 py-0.5 text-[10px] font-medium text-zinc-500 shadow-sm dark:bg-zinc-900 dark:text-zinc-400">
+                                {meta.tag}
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ))}
                 </div>
               ) : (
                 <div className="flex flex-col gap-1.5">

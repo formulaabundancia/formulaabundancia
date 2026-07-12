@@ -229,15 +229,44 @@ insert into habits (key, label, area, dimension, status, multi_check, meta_diari
   ('noche_aprendizajes', '3 cosas que aprendí hoy', 'salud', 'espiritu', 'active', false, null),
   ('noche_planear_manana', 'Planear mañana', 'salud', 'espiritu', 'active', false, null),
   ('noche_lectura', 'Lectura relajante', 'salud', 'espiritu', 'active', false, null),
-  ('skincare_limpieza', 'Limpieza facial', 'salud', 'cuerpo', 'active', false, null),
-  ('skincare_tonico', 'Tónico', 'salud', 'cuerpo', 'active', false, null),
-  ('skincare_serum', 'Sérum', 'salud', 'cuerpo', 'active', false, null),
-  ('skincare_hidratante', 'Hidratante', 'salud', 'cuerpo', 'active', false, null),
-  ('skincare_spf', 'Protector solar', 'salud', 'cuerpo', 'active', false, null),
+  ('skincare_ritual', 'Ritual coreano', 'salud', 'cuerpo', 'active', false, null),
+  ('bienestar_batido_manana', 'Batido Advertva Light (chocolate)', 'salud', 'cuerpo', 'active', false, null),
+  ('bienestar_proteina_manana', 'Proteína', 'salud', 'cuerpo', 'active', false, null),
+  ('bienestar_te_manana', 'Té', 'salud', 'cuerpo', 'active', false, null),
+  ('bienestar_batido_noche', 'Batido Advertva Light (chocolate)', 'salud', 'cuerpo', 'active', false, null),
+  ('bienestar_proteina_noche', 'Proteína', 'salud', 'cuerpo', 'active', false, null),
   ('wc', 'WC (rutina digestiva matutina)', 'salud', 'cuerpo', 'suggested', false, null),
   ('dientes_mano_izquierda', 'Dientes con la mano izquierda', 'salud', 'cuerpo', 'suggested', false, null),
   ('vaso_limon', 'Vaso de limón', 'salud', 'cuerpo', 'suggested', false, null),
   ('desayunar', 'Desayunar con consciencia', 'salud', 'cuerpo', 'suggested', false, null),
   ('energia_tony_robbins', 'Subir la energía (Tony Robbins)', 'salud', 'alma', 'suggested', false, null),
   ('estudiar_desarrollo', 'Estudiar desarrollo personal', 'salud', 'mente', 'suggested', false, null)
+on conflict (key) do nothing;
+
+-- ============ MIGRACIÓN: ritual de bienestar simplificado + skincare en un solo paso ============
+-- Si ya habías ejecutado este script antes, pega y ejecuta solo este bloque en el
+-- SQL Editor de Supabase para actualizar tu base de datos existente: quita los
+-- pasos de skincare por producto y del ritual de bienestar los que ya no se usan
+-- (aloe, microbiota, fitocomplejo, modo nocturno), y da de alta los nuevos.
+
+delete from habits where key in (
+  'skincare_limpieza',
+  'skincare_tonico',
+  'skincare_serum',
+  'skincare_hidratante',
+  'skincare_spf',
+  'bienestar_aloe_manana',
+  'bienestar_microbiota_manana',
+  'bienestar_phyto_manana',
+  'bienestar_modo_nocturno',
+  'bienestar_phyto_noche'
+);
+
+insert into habits (key, label, area, dimension, status, multi_check, meta_diaria) values
+  ('skincare_ritual', 'Ritual coreano', 'salud', 'cuerpo', 'active', false, null),
+  ('bienestar_batido_manana', 'Batido Advertva Light (chocolate)', 'salud', 'cuerpo', 'active', false, null),
+  ('bienestar_proteina_manana', 'Proteína', 'salud', 'cuerpo', 'active', false, null),
+  ('bienestar_te_manana', 'Té', 'salud', 'cuerpo', 'active', false, null),
+  ('bienestar_batido_noche', 'Batido Advertva Light (chocolate)', 'salud', 'cuerpo', 'active', false, null),
+  ('bienestar_proteina_noche', 'Proteína', 'salud', 'cuerpo', 'active', false, null)
 on conflict (key) do nothing;

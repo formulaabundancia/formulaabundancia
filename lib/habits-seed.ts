@@ -1,6 +1,6 @@
 import { Habit } from "./types";
 
-// Hábitos activos: 3 sueltos + los pasos de los 3 rituales (mañana, noche, skincare).
+// Hábitos activos: 3 sueltos + los pasos de los 4 rituales (mañana, noche, bienestar, skincare).
 // Los pasos de ritual son hábitos normales por debajo — RitualBlock solo los agrupa
 // visualmente y reutiliza el mismo streak/XP que cualquier otro hábito.
 export const DEFAULT_HABITS: Habit[] = [
@@ -30,12 +30,15 @@ export const DEFAULT_HABITS: Habit[] = [
   { key: "noche_planear_manana", label: "Planear mañana", area: "salud", dimension: "espiritu", status: "active" },
   { key: "noche_lectura", label: "Lectura relajante", area: "salud", dimension: "espiritu", status: "active" },
 
-  // Ritual de skincare (K-beauty)
-  { key: "skincare_limpieza", label: "Limpieza facial", area: "salud", dimension: "cuerpo", status: "active" },
-  { key: "skincare_tonico", label: "Tónico", area: "salud", dimension: "cuerpo", status: "active" },
-  { key: "skincare_serum", label: "Sérum", area: "salud", dimension: "cuerpo", status: "active" },
-  { key: "skincare_hidratante", label: "Hidratante", area: "salud", dimension: "cuerpo", status: "active" },
-  { key: "skincare_spf", label: "Protector solar", area: "salud", dimension: "cuerpo", status: "active" },
+  // Ritual de skincare (K-beauty) — un solo paso, sin desglose de productos
+  { key: "skincare_ritual", label: "Ritual coreano", area: "salud", dimension: "cuerpo", status: "active" },
+
+  // Ritual de bienestar (Herbalife) — mañana: batido + proteína + té; noche: batido + proteína
+  { key: "bienestar_batido_manana", label: "Batido Advertva Light (chocolate)", area: "salud", dimension: "cuerpo", status: "active" },
+  { key: "bienestar_proteina_manana", label: "Proteína", area: "salud", dimension: "cuerpo", status: "active" },
+  { key: "bienestar_te_manana", label: "Té", area: "salud", dimension: "cuerpo", status: "active" },
+  { key: "bienestar_batido_noche", label: "Batido Advertva Light (chocolate)", area: "salud", dimension: "cuerpo", status: "active" },
+  { key: "bienestar_proteina_noche", label: "Proteína", area: "salud", dimension: "cuerpo", status: "active" },
 
   // Librería de hábitos sugeridos (de las notas de Jose) — status "suggested",
   // se activan desde /libreria.

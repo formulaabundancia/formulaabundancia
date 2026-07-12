@@ -1,10 +1,16 @@
 export type RitualKey = "manana" | "noche" | "bienestar" | "skincare";
 
+export interface RitualStepGroup {
+  label: string;
+  steps: string[]; // habit keys, en orden
+}
+
 export interface RitualConfig {
   key: RitualKey;
   title: string;
   tips: string[];
-  steps: string[]; // habit keys, en orden
+  steps: string[]; // habit keys, en orden (aplanado — igual que antes para el resto del código)
+  groups?: RitualStepGroup[]; // subcabeceras opcionales dentro del bloque (p.ej. mañana/noche)
 }
 
 export interface StepMeta {
@@ -24,19 +30,12 @@ export const STEP_META: Record<string, StepMeta> = {
   noche_aprendizajes: { icon: "💡", time: "20:00–20:10", tag: "Diario" },
   noche_planear_manana: { icon: "🎯", time: "20:10–20:20", tag: "Diario" },
   noche_lectura: { icon: "📖", time: "20:20–20:45", tag: "Diario" },
-  skincare_limpieza: { icon: "🧼", tag: "Diario" },
-  skincare_tonico: { icon: "💧", tag: "Diario" },
-  skincare_serum: { icon: "✨", tag: "Diario" },
-  skincare_hidratante: { icon: "🧴", tag: "Diario" },
-  skincare_spf: { icon: "☀️", tag: "Diario" },
-  bienestar_batido_manana: { icon: "🥤", time: "7:00", tag: "Diario" },
-  bienestar_te_manana: { icon: "🍵", time: "7:00", tag: "Diario" },
-  bienestar_aloe_manana: { icon: "🌿", time: "7:00", tag: "Diario" },
-  bienestar_microbiota_manana: { icon: "🦠", time: "7:00", tag: "Diario" },
-  bienestar_phyto_manana: { icon: "🌱", time: "7:00", tag: "Diario" },
-  bienestar_batido_noche: { icon: "🥤", time: "18:30", tag: "Diario" },
-  bienestar_modo_nocturno: { icon: "🌙", time: "18:30", tag: "Diario" },
-  bienestar_phyto_noche: { icon: "🌱", time: "18:30", tag: "Diario" },
+  skincare_ritual: { icon: "🧴", tag: "Ritual coreano" },
+  bienestar_batido_manana: { icon: "🥤", time: "7:00", tag: "Ritual de bienestar" },
+  bienestar_proteina_manana: { icon: "💪", time: "7:00", tag: "Ritual de bienestar" },
+  bienestar_te_manana: { icon: "🍵", time: "7:00", tag: "Ritual de bienestar" },
+  bienestar_batido_noche: { icon: "🥤", time: "18:30", tag: "Ritual de bienestar" },
+  bienestar_proteina_noche: { icon: "💪", time: "18:30", tag: "Ritual de bienestar" },
 };
 
 export const RITUALS: RitualConfig[] = [
@@ -82,22 +81,29 @@ export const RITUALS: RitualConfig[] = [
       "Pequeños hábitos de bienestar, sostenidos, cambian mucho más que un mes de esfuerzo puntual.",
       "Cuidar de tu cuerpo por la mañana y por la noche es cuidar de todo lo demás.",
     ],
+    groups: [
+      {
+        label: "Ritual de la mañana",
+        steps: ["bienestar_batido_manana", "bienestar_proteina_manana", "bienestar_te_manana"],
+      },
+      {
+        label: "Ritual de la noche",
+        steps: ["bienestar_batido_noche", "bienestar_proteina_noche"],
+      },
+    ],
     steps: [
       "bienestar_batido_manana",
+      "bienestar_proteina_manana",
       "bienestar_te_manana",
-      "bienestar_aloe_manana",
-      "bienestar_microbiota_manana",
-      "bienestar_phyto_manana",
       "bienestar_batido_noche",
-      "bienestar_modo_nocturno",
-      "bienestar_phyto_noche",
+      "bienestar_proteina_noche",
     ],
   },
   {
     key: "skincare",
     title: "Skincare (ritual coreano)",
     tips: ["La constancia importa más que la cantidad de pasos."],
-    steps: ["skincare_limpieza", "skincare_tonico", "skincare_serum", "skincare_hidratante", "skincare_spf"],
+    steps: ["skincare_ritual"],
   },
 ];
 
