@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { addListItem, deleteListItem, getListItems, toggleListItem, todayStr, updateListItem } from "@/lib/storage";
+import { addListItem, deleteListItem, getListItems, logTaskDone, toggleListItem, todayStr, updateListItem } from "@/lib/storage";
 import { ListItem, PROFILE_AVATAR_COLOR, PROFILE_DISPLAY_NAMES, ProfileId, ProfileName } from "@/lib/types";
 import { useProfile } from "@/lib/profile-context";
 import { ProgressRing } from "@/components/ProgressRing";
@@ -174,6 +174,8 @@ export interface ListBlockProps {
   allowCategory?: boolean;
   dailyReset?: boolean;
   itemLabel?: string;
+  logCompletions?: boolean; // registra quién completa cada tarea (para estadísticas)
+  onCompletion?: () => void; // aviso al marcar una tarea hecha (para refrescar stats externas)
 }
 
 export function ListBlock({
@@ -183,6 +185,8 @@ export function ListBlock({
   allowCategory,
   dailyReset,
   itemLabel = "Nuevo item",
+  logCompletions,
+  onCompletion,
 }: ListBlockProps) {
   const { profileId, allProfiles } = useProfile();
   const [items, setItems] = useState<ListItem[]>([]);
@@ -275,7 +279,15 @@ export function ListBlock({
         done={isDone(item)}
         allowAssign={allowAssign}
         allProfiles={allProfiles}
-        onToggle={() => toggleListItem(item.id, isDone(item), dailyReset).then(refresh)}
+        onToggle={async () => {
+          const wasDone = isDone(item);
+          await toggleListItem(item.id, wasDone, dailyReset);
+          if (!wasDone && logCompletions && profileId) {
+            await logTaskDone(blockKey, item.titulo, item.categoria, profileId);
+            onCompletion?.();
+          }
+          refresh();
+        }}
         onEdit={() => startEdit(item)}
         onDelete={() => deleteListItem(item.id).then(refresh)}
       />
