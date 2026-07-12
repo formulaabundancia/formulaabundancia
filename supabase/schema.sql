@@ -374,3 +374,21 @@ update habits set ritual_key = 'bienestar', ritual_group = 'noche', sort_order =
 update habits set ritual_key = 'bienestar', ritual_group = 'noche', sort_order = 5, icon = '💪', time_label = '18:30' where key = 'bienestar_proteina_noche';
 
 update habits set ritual_key = 'skincare', sort_order = 1, icon = '🧴' where key = 'skincare_ritual';
+
+-- ============ MIGRACIÓN: rutinas de pareja (mañana/noche) ============
+-- Pasos de las dos rutinas de pareja del programa de mentoría. Se dan de alta
+-- como hábitos normales (editables desde la app). Seguro de re-ejecutar.
+
+insert into habits (key, label, area, dimension, status, ritual_key, sort_order, icon, time_label) values
+  ('pareja_m_despertar', 'Despertar consciente — sin móvil, 3 respiraciones y abrazo de 20s', 'salud', 'alma', 'active', 'pareja_manana', 1, '🌅', '5 min'),
+  ('pareja_m_hidratar', 'Hidratación + meditación juntos', 'salud', 'alma', 'active', 'pareja_manana', 2, '💧', '5 min'),
+  ('pareja_m_movimiento', 'Movimiento juntos — yoga, caminata o stretching', 'salud', 'cuerpo', 'active', 'pareja_manana', 3, '🏃', '15 min'),
+  ('pareja_m_sincronizar', 'Sincronización del día — calendario + 1 prioridad cada uno', 'salud', 'mente', 'active', 'pareja_manana', 4, '📋', '15 min'),
+  ('pareja_m_conexion', 'Conexión intencional — pregunta profunda del día', 'amor', 'alma', 'active', 'pareja_manana', 5, '❤️', '5 min'),
+  ('pareja_m_desayuno', 'Desayuno juntos sin móvil', 'salud', 'cuerpo', 'active', 'pareja_manana', 6, '☕', '15 min'),
+  ('pareja_n_desconexion', 'Desconexión digital — móviles fuera, luz tenue, infusión', 'salud', 'espiritu', 'active', 'pareja_noche', 1, '🌙', '10 min'),
+  ('pareja_n_retro', 'Repaso del día — qué salió bien y qué aprendimos', 'salud', 'mente', 'active', 'pareja_noche', 2, '📊', '10 min'),
+  ('pareja_n_conversacion', 'Conversación profunda — sueños, miedos, aspiraciones', 'amor', 'alma', 'active', 'pareja_noche', 3, '💬', '10 min'),
+  ('pareja_n_intimidad', 'Intimidad consciente — masaje, abrazos, conexión', 'amor', 'cuerpo', 'active', 'pareja_noche', 4, '🤝', '10 min'),
+  ('pareja_n_gratitud', 'Gratitud + dormir — 1 cosa que agradecer y respirar juntos', 'salud', 'espiritu', 'active', 'pareja_noche', 5, '✍️', '5 min')
+on conflict (key) do nothing;

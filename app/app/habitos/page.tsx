@@ -19,6 +19,8 @@ export default function HabitosPage() {
             <RitualBlock ritualKey="noche" />
             <RitualBlock ritualKey="bienestar" />
             <RitualBlock ritualKey="skincare" />
+            <RitualBlock ritualKey="pareja_manana" />
+            <RitualBlock ritualKey="pareja_noche" />
           </div>
         </div>
       </main>

@@ -1,6 +1,6 @@
 import { Habit } from "./types";
 
-export type RitualKey = "manana" | "noche" | "bienestar" | "skincare";
+export type RitualKey = "manana" | "noche" | "bienestar" | "skincare" | "pareja_manana" | "pareja_noche";
 
 export interface RitualConfig {
   key: RitualKey;
@@ -19,6 +19,8 @@ export const RITUAL_GROUPS: Record<RitualKey, { id: string; label: string }[] | 
     { id: "noche", label: "Ritual de la noche" },
   ],
   skincare: null,
+  pareja_manana: null,
+  pareja_noche: null,
 };
 
 // Etiqueta que se muestra en cada paso — es la misma para todos los pasos de
@@ -28,6 +30,8 @@ export const RITUAL_TAG: Record<RitualKey, string> = {
   noche: "Diario",
   bienestar: "Ritual de bienestar",
   skincare: "Ritual coreano",
+  pareja_manana: "Rutina de pareja",
+  pareja_noche: "Rutina de pareja",
 };
 
 export const RITUALS: RitualConfig[] = [
@@ -70,6 +74,26 @@ export const RITUALS: RitualConfig[] = [
     key: "skincare",
     title: "Skincare (ritual coreano)",
     tips: ["La constancia importa más que la cantidad de pasos."],
+  },
+  {
+    key: "pareja_manana",
+    title: "Rutina de pareja — mañana",
+    tips: [
+      "Mejor 20 minutos reales juntos que 60 forzados. Lo importante es la conexión.",
+      "Empezar el día mirándoos a los ojos cambia el tono de todo lo demás.",
+      "Sin móvil los primeros minutos: el mundo puede esperar, vosotros no.",
+      "Un abrazo de 20 segundos de verdad reduce el estrés de los dos.",
+    ],
+  },
+  {
+    key: "pareja_noche",
+    title: "Rutina de pareja — noche",
+    tips: [
+      "Cerrar el día agradeciendo algo del otro os acerca sin esfuerzo.",
+      "Dejar el móvil fuera del dormitorio es el regalo más fácil que os podéis hacer.",
+      "No hace falta resolverlo todo hoy: a veces solo hay que escuchar.",
+      "Dormir reconciliados es un no negociable que se entrena cada noche.",
+    ],
   },
 ];
 
