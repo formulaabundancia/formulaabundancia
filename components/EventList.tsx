@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { addEvento, deleteEvento, getEventos, todayStr } from "@/lib/storage";
+import { addEvento, deleteEvento, getEventos, todayStr, toggleEventoAsistimos } from "@/lib/storage";
 import { DEFAULT_EVENTS } from "@/lib/events-seed";
 import { Evento } from "@/lib/types";
 import { useProfile } from "@/lib/profile-context";
@@ -26,32 +26,51 @@ function EventCard({ evento, onChange }: { evento: Evento; onChange: () => void 
   const isPast = (evento.fechaFin ?? evento.fechaInicio) < todayStr();
 
   return (
-    <div className={`rounded-2xl bg-white p-4 shadow-sm dark:bg-zinc-900 ${isPast ? "opacity-60" : ""}`}>
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">{evento.titulo}</p>
-          <p className="mt-0.5 text-xs font-medium text-indigo-500 dark:text-indigo-400">{formatRange(evento)}</p>
-          {evento.lugar && <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">{evento.lugar}</p>}
+    <div className={`overflow-hidden rounded-2xl bg-white shadow-sm dark:bg-zinc-900 ${isPast ? "opacity-60" : ""}`}>
+      {evento.imagenUrl && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={evento.imagenUrl} alt={evento.titulo} className="h-36 w-full object-cover" />
+      )}
+      <div className="p-4">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">{evento.titulo}</p>
+            <p className="mt-0.5 text-xs font-medium text-indigo-500 dark:text-indigo-400">{formatRange(evento)}</p>
+            {evento.lugar && <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">{evento.lugar}</p>}
+          </div>
+          <div className="flex shrink-0 items-center gap-3">
+            <span
+              role="button"
+              title="Hemos ido"
+              onClick={() => toggleEventoAsistimos(evento.id, evento.asistimos).then(onChange)}
+              className={evento.asistimos ? "text-emerald-500" : "text-zinc-300 dark:text-zinc-600"}
+            >
+              ✓
+            </span>
+            {evento.ownerId === profileId && (
+              <button
+                onClick={() => deleteEvento(evento.id).then(onChange)}
+                className="text-xs text-zinc-400 hover:text-red-500"
+              >
+                Eliminar
+              </button>
+            )}
+          </div>
         </div>
-        {evento.ownerId === profileId && (
-          <button
-            onClick={() => deleteEvento(evento.id).then(onChange)}
-            className="shrink-0 text-xs text-zinc-400 hover:text-red-500"
+        {evento.asistimos && (
+          <p className="mt-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">✓ Hemos ido</p>
+        )}
+        {evento.url && (
+          <a
+            href={evento.url}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-2 inline-block text-xs text-indigo-500 underline dark:text-indigo-400"
           >
-            Eliminar
-          </button>
+            Ver más
+          </a>
         )}
       </div>
-      {evento.url && (
-        <a
-          href={evento.url}
-          target="_blank"
-          rel="noreferrer"
-          className="mt-2 inline-block text-xs text-indigo-500 underline dark:text-indigo-400"
-        >
-          Ver más
-        </a>
-      )}
     </div>
   );
 }
@@ -65,6 +84,7 @@ export function EventList() {
   const [fechaFin, setFechaFin] = useState("");
   const [lugar, setLugar] = useState("");
   const [url, setUrl] = useState("");
+  const [imagenUrl, setImagenUrl] = useState("");
 
   const seeded = useRef(false);
 
@@ -104,13 +124,15 @@ export function EventList() {
       "shared",
       fechaFin || undefined,
       url.trim() || undefined,
-      lugar.trim() || undefined
+      lugar.trim() || undefined,
+      imagenUrl.trim() || undefined
     );
     setTitulo("");
     setFechaInicio("");
     setFechaFin("");
     setLugar("");
     setUrl("");
+    setImagenUrl("");
     setShowForm(false);
     refresh();
   };
@@ -163,6 +185,12 @@ export function EventList() {
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             placeholder="Enlace (opcional)"
+            className="rounded-xl border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-zinc-900 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:focus:border-zinc-100"
+          />
+          <input
+            value={imagenUrl}
+            onChange={(e) => setImagenUrl(e.target.value)}
+            placeholder="Enlace a una foto del evento (opcional)"
             className="rounded-xl border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-zinc-900 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:focus:border-zinc-100"
           />
           <p className="text-xs text-zinc-400">El evento lo verá también Viviana — aquí no hay opción de privado.</p>

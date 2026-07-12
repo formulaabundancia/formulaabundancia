@@ -187,4 +187,6 @@ export interface Evento {
   lugar?: string;
   fechaInicio: string; // YYYY-MM-DD
   fechaFin?: string; // YYYY-MM-DD
+  imagenUrl?: string;
+  asistimos: boolean;
 }

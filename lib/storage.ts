@@ -926,6 +926,8 @@ function mapEvento(r: Record<string, unknown>): Evento {
     lugar: (r.lugar as string) || undefined,
     fechaInicio: r.fecha_inicio as string,
     fechaFin: (r.fecha_fin as string) || undefined,
+    imagenUrl: (r.imagen_url as string) || undefined,
+    asistimos: (r.asistimos as boolean) ?? false,
   };
 }
 
@@ -942,7 +944,8 @@ export async function addEvento(
   visibility: Visibility,
   fechaFin?: string,
   url?: string,
-  lugar?: string
+  lugar?: string,
+  imagenUrl?: string
 ) {
   const { error } = await supabase.from("events").insert({
     owner_id: profileId,
@@ -952,8 +955,13 @@ export async function addEvento(
     fecha_fin: fechaFin || null,
     url: url || null,
     lugar: lugar || null,
+    imagen_url: imagenUrl || null,
   });
   if (error) throw new Error(error.message);
+}
+
+export async function toggleEventoAsistimos(id: string, current: boolean) {
+  await supabase.from("events").update({ asistimos: !current }).eq("id", id);
 }
 
 export async function deleteEvento(id: string) {

@@ -252,8 +252,14 @@ create table if not exists events (
   lugar text,
   fecha_inicio date not null,
   fecha_fin date,
+  imagen_url text,
+  asistimos boolean not null default false,
   created_at timestamptz not null default now()
 );
+
+-- Por si la tabla 'events' ya existía de una ejecución anterior sin estas columnas.
+alter table events add column if not exists imagen_url text;
+alter table events add column if not exists asistimos boolean not null default false;
 
 alter table events enable row level security;
 
