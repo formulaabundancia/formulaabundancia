@@ -5,7 +5,6 @@ import Link from "next/link";
 import { Header } from "@/components/Header";
 import { ProgressRing } from "@/components/ProgressRing";
 import { WeekStrip } from "@/components/WeekStrip";
-import { FloatingTools } from "@/components/FloatingTools";
 import {
   BrainIcon,
   CalendarIcon,
@@ -175,29 +174,11 @@ export default function HomePage() {
           {!isChild && <TodayHero />}
           {!isChild && <HabitsBanner />}
 
-          {isChild ? (
-            <div className="mb-8 grid grid-cols-1 gap-3">
-              {CHILD_LINKS.map((link) => (
-                <LinkCard key={link.href} link={link} />
-              ))}
-            </div>
-          ) : (
-            <>
-              <div className="mb-3 grid grid-cols-2 gap-3">
-                {ADULT_LINKS.slice(0, 4).map((link) => (
-                  <LinkCard key={link.href} link={link} />
-                ))}
-              </div>
-              <div className="mb-3">
-                <FloatingTools />
-              </div>
-              <div className="mb-8 grid grid-cols-2 gap-3">
-                {ADULT_LINKS.slice(4).map((link) => (
-                  <LinkCard key={link.href} link={link} />
-                ))}
-              </div>
-            </>
-          )}
+          <div className={`mb-8 grid gap-3 ${isChild ? "grid-cols-1" : "grid-cols-2"}`}>
+            {(isChild ? CHILD_LINKS : ADULT_LINKS).map((link) => (
+              <LinkCard key={link.href} link={link} />
+            ))}
+          </div>
 
           {!isChild &&
             AREAS.map((area) => {

@@ -132,10 +132,11 @@ export function FloatingTools() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex w-full items-center justify-center gap-3 rounded-3xl bg-red-500 p-5 text-white shadow-md transition hover:-translate-y-0.5 hover:bg-red-600 hover:shadow-lg"
+        aria-label="Pomodoro"
+        title="Pomodoro"
+        className="-mt-8 flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-gradient-to-b from-red-500 to-red-600 text-white shadow-lg ring-4 ring-zinc-50 transition hover:scale-105 dark:ring-zinc-950"
       >
-        <ClockIcon className="h-6 w-6" />
-        <span className="text-base font-bold">Pomodoro</span>
+        <ClockIcon className="h-7 w-7" />
       </button>
 
       {open && (
