@@ -169,3 +169,22 @@ export interface Recipe {
   imagenUrl?: string;
   videoUrl?: string;
 }
+
+export interface Video {
+  id: string;
+  ownerId: ProfileId;
+  visibility: Visibility;
+  titulo: string;
+  videoUrl: string;
+}
+
+export interface Evento {
+  id: string;
+  ownerId: ProfileId;
+  visibility: Visibility;
+  titulo: string;
+  url?: string;
+  lugar?: string;
+  fechaInicio: string; // YYYY-MM-DD
+  fechaFin?: string; // YYYY-MM-DD
+}

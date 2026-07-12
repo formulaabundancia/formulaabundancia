@@ -5,15 +5,18 @@ import Link from "next/link";
 import { Header } from "@/components/Header";
 import { ProgressRing } from "@/components/ProgressRing";
 import { WeekStrip } from "@/components/WeekStrip";
-import { RitualBlock } from "@/components/RitualBlock";
 import {
   BrainIcon,
+  CalendarIcon,
+  ChecklistIcon,
   CoinIcon,
   FeatherIcon,
   DumbbellIcon,
+  FlameIcon,
   GlobeIcon,
   HeartIcon,
   LeafIcon,
+  PlayIcon,
   SparklesIcon,
   UtensilsIcon,
   WindIcon,
@@ -22,9 +25,10 @@ import { AREAS, DIMENSIONS, SECTIONS } from "@/lib/sections";
 import { Area, Dimension, PROFILE_DISPLAY_NAMES } from "@/lib/types";
 import { useProfile } from "@/lib/profile-context";
 import { RITUALS } from "@/lib/rituals";
-import { getTodayProgress } from "@/lib/storage";
+import { getHabitLogsForKeys, getRitualStreak, getTodayProgress, todayStr } from "@/lib/storage";
 
 const RITUAL_STEP_KEYS = new Set(RITUALS.flatMap((r) => r.steps));
+const RITUAL_STEP_KEYS_ARRAY = [...RITUAL_STEP_KEYS];
 
 function TodayHero() {
   const { profile, profileId } = useProfile();
@@ -53,6 +57,50 @@ function TodayHero() {
         <WeekStrip inverted />
       </div>
     </div>
+  );
+}
+
+function HabitsBanner() {
+  const { profileId } = useProfile();
+  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
+  const [streak, setStreak] = useState(0);
+
+  useEffect(() => {
+    if (!profileId) return;
+    (async () => {
+      const [done, streaks] = await Promise.all([
+        getHabitLogsForKeys(profileId, RITUAL_STEP_KEYS_ARRAY, todayStr()),
+        Promise.all(RITUALS.map((r) => getRitualStreak(r.steps, profileId))),
+      ]);
+      setProgress({ done: done.size, total: RITUAL_STEP_KEYS_ARRAY.length });
+      setStreak(Math.max(0, ...streaks));
+    })();
+  }, [profileId]);
+
+  return (
+    <Link
+      href="/app/habitos"
+      className="mb-6 flex items-center justify-between gap-4 rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 p-5 shadow-md transition hover:-translate-y-0.5 hover:shadow-lg"
+    >
+      <div className="flex items-center gap-3">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/25">
+          <ChecklistIcon className="h-5 w-5 text-white" />
+        </span>
+        <div>
+          <p className="text-xs font-medium uppercase tracking-wide text-white/70">Hábitos diarios</p>
+          <p className="mt-0.5 text-base font-bold text-white">
+            {progress ? `${progress.done}/${progress.total} rituales de hoy` : "Rituales de hoy"}
+          </p>
+          {streak > 0 && (
+            <p className="mt-0.5 flex items-center gap-1 text-xs font-medium text-white/80">
+              <FlameIcon className="h-3.5 w-3.5" />
+              {streak} {streak === 1 ? "día seguido" : "días seguidos"}
+            </p>
+          )}
+        </div>
+      </div>
+      {progress && <ProgressRing value={progress.done} total={progress.total} size={52} strokeWidth={6} inverted />}
+    </Link>
   );
 }
 
@@ -86,6 +134,8 @@ const ADULT_LINKS = [
   { href: "/app/red-de-vida", Icon: GlobeIcon, label: "Red de la vida", block: "bg-violet-500" },
   { href: "/app/respiracion", Icon: WindIcon, label: "Respiración", block: "bg-cyan-500" },
   { href: "/app/recetas", Icon: UtensilsIcon, label: "Recetas", block: "bg-orange-500" },
+  { href: "/app/videoteca", Icon: PlayIcon, label: "Videoteca", block: "bg-red-500" },
+  { href: "/app/eventos", Icon: CalendarIcon, label: "Eventos", block: "bg-fuchsia-500" },
 ];
 
 const CHILD_LINKS = [{ href: "/app/respiracion", Icon: WindIcon, label: "Respiración", block: "bg-cyan-500" }];
@@ -100,17 +150,7 @@ export default function HomePage() {
       <main className="flex-1 px-5 py-6">
         <div className="mx-auto max-w-2xl">
           {!isChild && <TodayHero />}
-
-          {!isChild && (
-            <div className="mb-8 flex flex-col gap-3">
-              <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                Rutinas de hoy
-              </h2>
-              <RitualBlock ritualKey="manana" />
-              <RitualBlock ritualKey="noche" />
-              <RitualBlock ritualKey="bienestar" />
-            </div>
-          )}
+          {!isChild && <HabitsBanner />}
 
           <div className={`mb-8 grid gap-3 ${isChild ? "grid-cols-1" : "grid-cols-2"}`}>
             {(isChild ? CHILD_LINKS : ADULT_LINKS).map((link) => (

@@ -12,11 +12,7 @@ import {
 import { DEFAULT_RECIPES, SUGGESTED_RECIPES } from "@/lib/recipes-seed";
 import { Recipe } from "@/lib/types";
 import { useProfile } from "@/lib/profile-context";
-
-function youtubeEmbedUrl(url: string): string | null {
-  const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/);
-  return match ? `https://www.youtube.com/embed/${match[1]}` : null;
-}
+import { youtubeEmbedUrl } from "@/lib/youtube";
 
 function RecipeCard({ recipe, onChange }: { recipe: Recipe; onChange: () => void }) {
   const { profileId } = useProfile();

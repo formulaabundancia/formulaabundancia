@@ -34,10 +34,10 @@ export const DEFAULT_HABITS: Habit[] = [
   { key: "skincare_ritual", label: "Ritual coreano", area: "salud", dimension: "cuerpo", status: "active" },
 
   // Ritual de bienestar (Herbalife) — mañana: batido + proteína + té; noche: batido + proteína
-  { key: "bienestar_batido_manana", label: "Batido Advertva Light (chocolate)", area: "salud", dimension: "cuerpo", status: "active" },
+  { key: "bienestar_batido_manana", label: "Batido Herbalife (chocolate)", area: "salud", dimension: "cuerpo", status: "active" },
   { key: "bienestar_proteina_manana", label: "Proteína", area: "salud", dimension: "cuerpo", status: "active" },
   { key: "bienestar_te_manana", label: "Té", area: "salud", dimension: "cuerpo", status: "active" },
-  { key: "bienestar_batido_noche", label: "Batido Advertva Light (chocolate)", area: "salud", dimension: "cuerpo", status: "active" },
+  { key: "bienestar_batido_noche", label: "Batido Herbalife (chocolate)", area: "salud", dimension: "cuerpo", status: "active" },
   { key: "bienestar_proteina_noche", label: "Proteína", area: "salud", dimension: "cuerpo", status: "active" },
 
   // Librería de hábitos sugeridos (de las notas de Jose) — status "suggested",

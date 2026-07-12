@@ -4,6 +4,7 @@ import { supabase } from "./supabase";
 import {
   AmountItem,
   Deseo,
+  Evento,
   FinanceEntry,
   FinanceGoal,
   FinanceScope,
@@ -19,6 +20,7 @@ import {
   ProfileId,
   Recipe,
   Relacion,
+  Video,
   Visibility,
   WorkSession,
 } from "./types";
@@ -147,9 +149,13 @@ export async function incrementHabitCount(
   return count;
 }
 
+// Justo por debajo del límite de fila por defecto de PostgREST (1000), para que
+// una sola consulta de racha no necesite paginar.
+const STREAK_LOOKBACK_DAYS = 999;
+
 export async function getHabitStreak(habitKey: HabitKey, profileId: ProfileId): Promise<number> {
   const since = new Date();
-  since.setDate(since.getDate() - 120);
+  since.setDate(since.getDate() - STREAK_LOOKBACK_DAYS);
   const { data } = await supabase
     .from("habit_logs")
     .select("date, completed")
@@ -178,6 +184,13 @@ export function badgeForStreak(streak: number): string | null {
   if (streak >= 30) return "🥈";
   if (streak >= 7) return "🥉";
   return null;
+}
+
+// Puntos de racha: solo se ven cuando encadenas 2+ días seguidos (2d=+5, 7d=+30,
+// 30d=+145, 100d=+495). Cálculo de solo lectura sobre el streak ya existente —
+// no toca el XP/nivel ni escribe nada nuevo.
+export function streakBonusPoints(streak: number): number {
+  return streak >= 2 ? (streak - 1) * 5 : 0;
 }
 
 // ---- Gamificación ----
@@ -229,31 +242,164 @@ export async function getRitualDoneToday(profileId: ProfileId, stepKeys: string[
   return stepKeys.every((k) => done.has(k));
 }
 
-export async function getWeeklyCounts(profileId: ProfileId): Promise<{ date: string; count: number }[]> {
-  const cursor = new Date();
-  const start = new Date(cursor);
-  start.setDate(cursor.getDate() - 6);
+// Igual que getRitualDoneToday pero devuelve el detalle (qué claves están hechas),
+// en una sola consulta batched — evita bucles secuenciales de getHabitLog por paso.
+export async function getHabitLogsForKeys(
+  profileId: ProfileId,
+  keys: string[],
+  date: string
+): Promise<Set<string>> {
+  if (keys.length === 0) return new Set();
   const { data } = await supabase
     .from("habit_logs")
-    .select("date")
+    .select("habit_key")
     .eq("profile_id", profileId)
+    .eq("date", date)
     .eq("completed", true)
-    .gte("date", start.toISOString().slice(0, 10));
+    .in("habit_key", keys);
+  return new Set((data ?? []).map((l) => l.habit_key as string));
+}
 
-  const counts: Record<string, number> = {};
-  (data ?? []).forEach((l) => {
-    const d = l.date as string;
-    counts[d] = (counts[d] ?? 0) + 1;
-  });
+// ---- Estadísticas por periodo (día/semana/mes/trimestre/semestre/año) ----
 
-  const days: { date: string; count: number }[] = [];
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date(cursor);
-    d.setDate(cursor.getDate() - i);
-    const dateStr = d.toISOString().slice(0, 10);
-    days.push({ date: dateStr, count: counts[dateStr] ?? 0 });
+export type PeriodGranularity = "day" | "week" | "month" | "quarter" | "half" | "year";
+
+export interface PeriodBucket {
+  bucket: string; // fecha ancla del bucket, YYYY-MM-DD (única y ordenable)
+  label: string; // etiqueta corta para mostrar
+  value: number;
+}
+
+const SUPABASE_PAGE_SIZE = 1000;
+
+// El límite por defecto de PostgREST es 1000 filas por respuesta — en rangos
+// largos (10 años) eso se puede superar, así que paginamos con .range().
+async function fetchCompletedDates(profileId: ProfileId, sinceDate: string): Promise<string[]> {
+  const dates: string[] = [];
+  let from = 0;
+  while (true) {
+    const { data } = await supabase
+      .from("habit_logs")
+      .select("date")
+      .eq("profile_id", profileId)
+      .eq("completed", true)
+      .gte("date", sinceDate)
+      .order("date", { ascending: true })
+      .range(from, from + SUPABASE_PAGE_SIZE - 1);
+    const rows = data ?? [];
+    dates.push(...rows.map((r) => r.date as string));
+    if (rows.length < SUPABASE_PAGE_SIZE) break;
+    from += SUPABASE_PAGE_SIZE;
   }
-  return days;
+  return dates;
+}
+
+function addDays(dateStr: string, n: number): string {
+  const d = new Date(`${dateStr}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
+}
+
+function addMonths(dateStr: string, n: number): string {
+  const d = new Date(`${dateStr}T00:00:00Z`);
+  d.setUTCMonth(d.getUTCMonth() + n);
+  return d.toISOString().slice(0, 10);
+}
+
+// Lunes (ISO) de la semana que contiene dateStr — usar la fecha real como clave
+// evita el bug clásico de "YYYY-Www" mal etiquetado en el borde dic/ene.
+function isoMonday(dateStr: string): string {
+  const d = new Date(`${dateStr}T00:00:00Z`);
+  const day = d.getUTCDay(); // 0=domingo..6=sábado
+  const diff = (day === 0 ? -6 : 1) - day;
+  d.setUTCDate(d.getUTCDate() + diff);
+  return d.toISOString().slice(0, 10);
+}
+
+// Fecha ancla (YYYY-MM-DD) que identifica el bucket al que pertenece dateStr.
+function bucketAnchor(dateStr: string, granularity: PeriodGranularity): string {
+  switch (granularity) {
+    case "day":
+      return dateStr;
+    case "week":
+      return isoMonday(dateStr);
+    case "month":
+      return `${dateStr.slice(0, 7)}-01`;
+    case "quarter": {
+      const [y, m] = dateStr.split("-").map(Number);
+      const qStartMonth = Math.floor((m - 1) / 3) * 3 + 1;
+      return `${y}-${String(qStartMonth).padStart(2, "0")}-01`;
+    }
+    case "half": {
+      const [y, m] = dateStr.split("-").map(Number);
+      const hStartMonth = m <= 6 ? 1 : 7;
+      return `${y}-${String(hStartMonth).padStart(2, "0")}-01`;
+    }
+    case "year":
+      return `${dateStr.slice(0, 4)}-01-01`;
+  }
+}
+
+function stepBucket(anchor: string, granularity: PeriodGranularity, n: number): string {
+  if (granularity === "day") return addDays(anchor, n);
+  if (granularity === "week") return addDays(anchor, n * 7);
+  const monthsPerBucket = { month: 1, quarter: 3, half: 6, year: 12 }[granularity];
+  return addMonths(anchor, n * monthsPerBucket);
+}
+
+const MONTH_SHORT = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+
+function bucketLabel(anchor: string, granularity: PeriodGranularity): string {
+  const [y, m, d] = anchor.split("-").map(Number);
+  switch (granularity) {
+    case "day":
+    case "week":
+      return `${d} ${MONTH_SHORT[m - 1]}`;
+    case "month":
+      return `${MONTH_SHORT[m - 1]} ${String(y).slice(2)}`;
+    case "quarter":
+      return `T${Math.floor((m - 1) / 3) + 1} ${String(y).slice(2)}`;
+    case "half":
+      return `S${m <= 6 ? 1 : 2} ${String(y).slice(2)}`;
+    case "year":
+      return `${y}`;
+  }
+}
+
+// Cuántos días caben en el bucket que empieza en `anchor` (útil como denominador
+// "total" de la vista círculo).
+export function periodBucketDays(anchor: string, granularity: PeriodGranularity): number {
+  if (granularity === "day") return 1;
+  const next = stepBucket(anchor, granularity, 1);
+  return Math.round((new Date(`${next}T00:00:00Z`).getTime() - new Date(`${anchor}T00:00:00Z`).getTime()) / 86400000);
+}
+
+// Buckets de los últimos `bucketsCount` periodos de `granularity`, terminando en
+// el periodo que contiene hoy. Una sola consulta (paginada) + bucketing en cliente;
+// la tendencia (último bucket vs penúltimo) sale directamente de este mismo array.
+export async function getPeriodCounts(
+  profileId: ProfileId,
+  granularity: PeriodGranularity,
+  bucketsCount: number
+): Promise<PeriodBucket[]> {
+  const todayAnchor = bucketAnchor(todayStr(), granularity);
+  const anchors: string[] = [];
+  for (let i = bucketsCount - 1; i >= 0; i--) {
+    anchors.push(stepBucket(todayAnchor, granularity, -i));
+  }
+
+  const dates = await fetchCompletedDates(profileId, anchors[0]);
+  const counts = new Map<string, number>();
+  for (const dateStr of dates) {
+    const key = bucketAnchor(dateStr, granularity);
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+
+  return anchors.map((anchor) => ({
+    bucket: anchor,
+    label: bucketLabel(anchor, granularity),
+    value: counts.get(anchor) ?? 0,
+  }));
 }
 
 export async function getRitualProgress(
@@ -276,7 +422,7 @@ export async function getRitualProgress(
 export async function getRitualStreak(stepKeys: string[], profileId: ProfileId): Promise<number> {
   if (stepKeys.length === 0) return 0;
   const since = new Date();
-  since.setDate(since.getDate() - 120);
+  since.setDate(since.getDate() - STREAK_LOOKBACK_DAYS);
   const { data } = await supabase
     .from("habit_logs")
     .select("date, habit_key")
@@ -737,6 +883,81 @@ export async function setRecipeStatus(id: string, status: Recipe["status"]) {
 
 export async function deleteRecipe(id: string) {
   await supabase.from("recipes").delete().eq("id", id);
+}
+
+// ---- Videoteca ----
+
+function mapVideo(r: Record<string, unknown>): Video {
+  return {
+    id: r.id as string,
+    ownerId: r.owner_id as string,
+    visibility: r.visibility as Visibility,
+    titulo: r.titulo as string,
+    videoUrl: r.video_url as string,
+  };
+}
+
+export async function getVideos(): Promise<Video[]> {
+  const { data, error } = await supabase.from("videos").select("*").order("created_at", { ascending: true });
+  if (error) console.error("No se pudo leer 'videos' — ¿está la tabla al día en Supabase?", error.message);
+  return (data ?? []).map(mapVideo);
+}
+
+export async function addVideo(titulo: string, videoUrl: string, profileId: ProfileId, visibility: Visibility) {
+  const { error } = await supabase
+    .from("videos")
+    .insert({ owner_id: profileId, visibility, titulo, video_url: videoUrl });
+  if (error) throw new Error(error.message);
+}
+
+export async function deleteVideo(id: string) {
+  await supabase.from("videos").delete().eq("id", id);
+}
+
+// ---- Eventos ----
+
+function mapEvento(r: Record<string, unknown>): Evento {
+  return {
+    id: r.id as string,
+    ownerId: r.owner_id as string,
+    visibility: r.visibility as Visibility,
+    titulo: r.titulo as string,
+    url: (r.url as string) || undefined,
+    lugar: (r.lugar as string) || undefined,
+    fechaInicio: r.fecha_inicio as string,
+    fechaFin: (r.fecha_fin as string) || undefined,
+  };
+}
+
+export async function getEventos(): Promise<Evento[]> {
+  const { data, error } = await supabase.from("events").select("*").order("fecha_inicio", { ascending: true });
+  if (error) console.error("No se pudo leer 'events' — ¿está la tabla al día en Supabase?", error.message);
+  return (data ?? []).map(mapEvento);
+}
+
+export async function addEvento(
+  titulo: string,
+  fechaInicio: string,
+  profileId: ProfileId,
+  visibility: Visibility,
+  fechaFin?: string,
+  url?: string,
+  lugar?: string
+) {
+  const { error } = await supabase.from("events").insert({
+    owner_id: profileId,
+    visibility,
+    titulo,
+    fecha_inicio: fechaInicio,
+    fecha_fin: fechaFin || null,
+    url: url || null,
+    lugar: lugar || null,
+  });
+  if (error) throw new Error(error.message);
+}
+
+export async function deleteEvento(id: string) {
+  await supabase.from("events").delete().eq("id", id);
 }
 
 export type { WorkSession };

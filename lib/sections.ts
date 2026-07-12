@@ -49,7 +49,6 @@ export const SECTIONS: SectionConfig[] = [
     blocks: [
       { kind: "habit", habitKey: "deporte" },
       { kind: "habit", habitKey: "agua" },
-      { kind: "ritual", ritualKey: "skincare" },
       { kind: "meals" },
       { kind: "dynamic-habits", area: "salud", dimension: "cuerpo" },
     ],
@@ -60,7 +59,6 @@ export const SECTIONS: SectionConfig[] = [
     title: "Salud · Alma",
     subtitle: "Gratitud, calma y alegría",
     blocks: [
-      { kind: "ritual", ritualKey: "manana" },
       { kind: "personal-content", mode: "decretos" },
       { kind: "dynamic-habits", area: "salud", dimension: "alma" },
     ],
@@ -78,7 +76,6 @@ export const SECTIONS: SectionConfig[] = [
     title: "Salud · Espíritu",
     subtitle: "Agradezco mi cuerpo",
     blocks: [
-      { kind: "ritual", ritualKey: "noche" },
       { kind: "personal-content", mode: "visualizacion" },
       { kind: "dynamic-habits", area: "salud", dimension: "espiritu" },
     ],

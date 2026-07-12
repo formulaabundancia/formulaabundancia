@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { dailyTip, getRitual, RitualKey, STEP_META } from "@/lib/rituals";
-import { getHabits, getHabitLog, getRitualStreak, toggleHabitLog, todayStr } from "@/lib/storage";
+import { getHabitLogsForKeys, getHabits, getRitualStreak, toggleHabitLog, todayStr } from "@/lib/storage";
 import { PROFILE_DISPLAY_NAMES } from "@/lib/types";
 import { useProfile } from "@/lib/profile-context";
 import { ProgressRing } from "@/components/ProgressRing";
@@ -32,12 +32,18 @@ export function RitualBlock({ ritualKey }: { ritualKey: RitualKey }) {
     (async () => {
       const entries: Record<string, boolean> = {};
       const streakEntries: Record<string, number> = {};
-      for (const p of adultProfiles) {
-        for (const step of ritual.steps) {
-          entries[`${p.id}:${step}`] = await getHabitLog(step, p.id, today);
-        }
-        streakEntries[p.id] = await getRitualStreak(ritual.steps, p.id);
-      }
+      await Promise.all(
+        adultProfiles.map(async (p) => {
+          const [done, streak] = await Promise.all([
+            getHabitLogsForKeys(p.id, ritual.steps, today),
+            getRitualStreak(ritual.steps, p.id),
+          ]);
+          for (const step of ritual.steps) {
+            entries[`${p.id}:${step}`] = done.has(step);
+          }
+          streakEntries[p.id] = streak;
+        })
+      );
       if (!cancelled) {
         setDoneMap(entries);
         setStreaks(streakEntries);

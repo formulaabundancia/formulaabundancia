@@ -65,6 +65,11 @@ create policy habit_logs_select_all on habit_logs for select
 create policy habit_logs_write_own on habit_logs for all
   using (profile_id = auth.uid()) with check (profile_id = auth.uid());
 
+-- El índice único de arriba es (habit_key, profile_id, date) — no sirve para las
+-- consultas por perfil+fecha (rachas, estadísticas por periodo) que no filtran por
+-- habit_key. Este índice cubre esas consultas.
+create index if not exists habit_logs_profile_date_idx on habit_logs (profile_id, date) include (completed);
+
 -- ============ Patrón genérico: owner_id + visibility ============
 -- (meals, finance_entries, finance_goals, logs, lists, amount_items, life_contacts)
 -- select: dueño siempre, o cualquiera si es 'shared'. write: solo el dueño.
@@ -213,6 +218,55 @@ create policy recipes_insert_own on recipes for insert with check (owner_id = au
 create policy recipes_update_own on recipes for update using (owner_id = auth.uid());
 create policy recipes_delete_own on recipes for delete using (owner_id = auth.uid());
 
+-- ============ VIDEOTECA ============
+
+create table if not exists videos (
+  id uuid primary key default gen_random_uuid(),
+  owner_id uuid not null references profiles(id) on delete cascade,
+  visibility text not null default 'shared' check (visibility in ('private', 'shared')),
+  titulo text not null,
+  video_url text not null,
+  created_at timestamptz not null default now()
+);
+
+alter table videos enable row level security;
+
+drop policy if exists videos_select_own_or_shared on videos;
+create policy videos_select_own_or_shared on videos for select
+  using (owner_id = auth.uid() or visibility = 'shared');
+drop policy if exists videos_insert_own on videos;
+create policy videos_insert_own on videos for insert with check (owner_id = auth.uid());
+drop policy if exists videos_update_own on videos;
+create policy videos_update_own on videos for update using (owner_id = auth.uid());
+drop policy if exists videos_delete_own on videos;
+create policy videos_delete_own on videos for delete using (owner_id = auth.uid());
+
+-- ============ EVENTOS ============
+
+create table if not exists events (
+  id uuid primary key default gen_random_uuid(),
+  owner_id uuid not null references profiles(id) on delete cascade,
+  visibility text not null default 'shared' check (visibility in ('private', 'shared')),
+  titulo text not null,
+  url text,
+  lugar text,
+  fecha_inicio date not null,
+  fecha_fin date,
+  created_at timestamptz not null default now()
+);
+
+alter table events enable row level security;
+
+drop policy if exists events_select_own_or_shared on events;
+create policy events_select_own_or_shared on events for select
+  using (owner_id = auth.uid() or visibility = 'shared');
+drop policy if exists events_insert_own on events;
+create policy events_insert_own on events for insert with check (owner_id = auth.uid());
+drop policy if exists events_update_own on events;
+create policy events_update_own on events for update using (owner_id = auth.uid());
+drop policy if exists events_delete_own on events;
+create policy events_delete_own on events for delete using (owner_id = auth.uid());
+
 -- ============ SEED de hábitos (catálogo inicial) ============
 
 insert into habits (key, label, area, dimension, status, multi_check, meta_diaria) values
@@ -230,10 +284,10 @@ insert into habits (key, label, area, dimension, status, multi_check, meta_diari
   ('noche_planear_manana', 'Planear mañana', 'salud', 'espiritu', 'active', false, null),
   ('noche_lectura', 'Lectura relajante', 'salud', 'espiritu', 'active', false, null),
   ('skincare_ritual', 'Ritual coreano', 'salud', 'cuerpo', 'active', false, null),
-  ('bienestar_batido_manana', 'Batido Advertva Light (chocolate)', 'salud', 'cuerpo', 'active', false, null),
+  ('bienestar_batido_manana', 'Batido Herbalife (chocolate)', 'salud', 'cuerpo', 'active', false, null),
   ('bienestar_proteina_manana', 'Proteína', 'salud', 'cuerpo', 'active', false, null),
   ('bienestar_te_manana', 'Té', 'salud', 'cuerpo', 'active', false, null),
-  ('bienestar_batido_noche', 'Batido Advertva Light (chocolate)', 'salud', 'cuerpo', 'active', false, null),
+  ('bienestar_batido_noche', 'Batido Herbalife (chocolate)', 'salud', 'cuerpo', 'active', false, null),
   ('bienestar_proteina_noche', 'Proteína', 'salud', 'cuerpo', 'active', false, null),
   ('wc', 'WC (rutina digestiva matutina)', 'salud', 'cuerpo', 'suggested', false, null),
   ('dientes_mano_izquierda', 'Dientes con la mano izquierda', 'salud', 'cuerpo', 'suggested', false, null),
@@ -264,9 +318,15 @@ delete from habits where key in (
 
 insert into habits (key, label, area, dimension, status, multi_check, meta_diaria) values
   ('skincare_ritual', 'Ritual coreano', 'salud', 'cuerpo', 'active', false, null),
-  ('bienestar_batido_manana', 'Batido Advertva Light (chocolate)', 'salud', 'cuerpo', 'active', false, null),
+  ('bienestar_batido_manana', 'Batido Herbalife (chocolate)', 'salud', 'cuerpo', 'active', false, null),
   ('bienestar_proteina_manana', 'Proteína', 'salud', 'cuerpo', 'active', false, null),
   ('bienestar_te_manana', 'Té', 'salud', 'cuerpo', 'active', false, null),
-  ('bienestar_batido_noche', 'Batido Advertva Light (chocolate)', 'salud', 'cuerpo', 'active', false, null),
+  ('bienestar_batido_noche', 'Batido Herbalife (chocolate)', 'salud', 'cuerpo', 'active', false, null),
   ('bienestar_proteina_noche', 'Proteína', 'salud', 'cuerpo', 'active', false, null)
 on conflict (key) do nothing;
+
+-- Si ya habías ejecutado el bloque de arriba con el nombre mal escrito ("Advertva
+-- Light"), esto corrige el label a "Herbalife" sin tocar el resto de la fila.
+update habits set label = 'Batido Herbalife (chocolate)'
+where key in ('bienestar_batido_manana', 'bienestar_batido_noche')
+  and label <> 'Batido Herbalife (chocolate)';
