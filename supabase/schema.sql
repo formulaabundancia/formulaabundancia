@@ -380,6 +380,29 @@ create policy task_log_select_all on task_log for select using (auth.uid() is no
 drop policy if exists task_log_write_own on task_log;
 create policy task_log_write_own on task_log for all using (profile_id = auth.uid()) with check (profile_id = auth.uid());
 
+-- Ejercicios del programa de pareja (5 porqués, motivaciones, negocio, progreso
+-- de las 8 semanas). Uno por persona y tipo; ambos se ven entre sí.
+create table if not exists exercises (
+  id uuid primary key default gen_random_uuid(),
+  owner_id uuid not null references profiles(id) on delete cascade,
+  visibility text not null default 'shared' check (visibility in ('private', 'shared')),
+  tipo text not null,
+  data jsonb not null default '{}',
+  updated_at timestamptz not null default now(),
+  unique (owner_id, tipo)
+);
+
+alter table exercises enable row level security;
+
+drop policy if exists exercises_select on exercises;
+create policy exercises_select on exercises for select using (owner_id = auth.uid() or visibility = 'shared');
+drop policy if exists exercises_insert_own on exercises;
+create policy exercises_insert_own on exercises for insert with check (owner_id = auth.uid());
+drop policy if exists exercises_update_own on exercises;
+create policy exercises_update_own on exercises for update using (owner_id = auth.uid());
+drop policy if exists exercises_delete_own on exercises;
+create policy exercises_delete_own on exercises for delete using (owner_id = auth.uid());
+
 -- Acuerdo de pareja: una única fila compartida (los pactos que ambos firman).
 create table if not exists couple_agreement (
   id text primary key default 'default',

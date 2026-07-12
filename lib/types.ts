@@ -260,3 +260,11 @@ export interface TaskLogEntry {
   categoria?: string;
   date: string; // YYYY-MM-DD
 }
+
+export interface Exercise<T = Record<string, unknown>> {
+  id: string;
+  ownerId: ProfileId;
+  visibility: Visibility;
+  tipo: string;
+  data: T;
+}

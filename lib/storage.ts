@@ -24,6 +24,7 @@ import {
   OkrResultado,
   PersonalContent,
   ProfileId,
+  Exercise,
   Recipe,
   Relacion,
   Reward,
@@ -1280,6 +1281,35 @@ export async function getTaskLog(blockKey: string, sinceDate: string): Promise<T
     .gte("date", sinceDate);
   if (error) console.error("No se pudo leer 'task_log' — ¿está la tabla al día en Supabase?", error.message);
   return (data ?? []).map(mapTaskLog);
+}
+
+// ---- Ejercicios del programa de pareja ----
+
+function mapExercise<T>(r: Record<string, unknown>): Exercise<T> {
+  return {
+    id: r.id as string,
+    ownerId: r.owner_id as string,
+    visibility: r.visibility as Visibility,
+    tipo: r.tipo as string,
+    data: (r.data as T) ?? ({} as T),
+  };
+}
+
+// Todos los registros de un tipo (el tuyo y el de tu pareja).
+export async function getAllExercises<T = Record<string, unknown>>(tipo: string): Promise<Exercise<T>[]> {
+  const { data, error } = await supabase.from("exercises").select("*").eq("tipo", tipo);
+  if (error) console.error("No se pudo leer 'exercises' — ¿está la tabla al día en Supabase?", error.message);
+  return (data ?? []).map((r) => mapExercise<T>(r));
+}
+
+export async function upsertExercise<T>(tipo: string, data: T, profileId: ProfileId) {
+  const { error } = await supabase
+    .from("exercises")
+    .upsert(
+      { owner_id: profileId, visibility: "shared", tipo, data, updated_at: new Date().toISOString() },
+      { onConflict: "owner_id,tipo" }
+    );
+  if (error) throw new Error(error.message);
 }
 
 export type { WorkSession };
