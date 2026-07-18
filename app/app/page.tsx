@@ -9,6 +9,7 @@ import {
   CalendarIcon,
   ChecklistIcon,
   CoinIcon,
+  DumbbellIcon,
   FlameIcon,
   GlobeIcon,
   HeartIcon,
@@ -133,6 +134,7 @@ const HOME_GROUPS: { titulo: string; links: LinkItem[] }[] = [
     titulo: "Vosotros",
     links: [
       { href: "/app/pareja", Icon: RingsIcon, label: "Pareja", block: "bg-rose-500" },
+      { href: "/app/entreno", Icon: DumbbellIcon, label: "Entreno", block: "bg-lime-500" },
       { href: "/app/rueda-de-vida", Icon: GlobeIcon, label: "Rueda de la vida", block: "bg-violet-500" },
     ],
   },

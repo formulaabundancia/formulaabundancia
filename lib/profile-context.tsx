@@ -7,7 +7,14 @@ import { Profile, ProfileId, ProfileName } from "./types";
 import { seedPersonalContent } from "./storage";
 import { JOSE_SEED_CONTENT } from "./personal-content-seed";
 
-const CHILD_BLOCKED_PREFIXES = ["/app/salud", "/app/dinero", "/app/amor", "/app/estadisticas", "/app/libreria"];
+const CHILD_BLOCKED_PREFIXES = [
+  "/app/salud",
+  "/app/dinero",
+  "/app/amor",
+  "/app/estadisticas",
+  "/app/libreria",
+  "/app/entreno",
+];
 
 interface ProfileContextValue {
   profileId: ProfileId | null;
